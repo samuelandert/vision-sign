@@ -5,7 +5,7 @@ import { LitNodeClient } from '@lit-protocol/lit-node-client';
 // Initialize the LitAuthClient with your Lit Relay Server API key
 const litAuthClient = new LitAuthClient({
     litRelayConfig: {
-        relayApiKey: 'your-lit-relay-server-api-key', // Replace with your actual API key
+        relayApiKey: 'test-api-key', // Replace with your actual API key
     },
 });
 
