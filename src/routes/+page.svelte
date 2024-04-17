@@ -64,7 +64,7 @@
 				pkpPublicKey = result.pkpPublicKey;
 				ethAddress = result.ethAddress;
 				updateLocalStorage(pkpPublicKey, ethAddress);
-				addStatusMessage(`PKP Public Key fetched)`);
+				addStatusMessage(`PKP Public Key fetched`);
 			} else {
 				addStatusMessage('No PKP Public Key or Eth Address received.');
 			}
@@ -72,6 +72,13 @@
 			console.error('Error:', error);
 			addStatusMessage('Authentication failed.');
 		}
+	}
+	function handleLogout() {
+		localStorage.removeItem('me');
+		me = null;
+		pkpPublicKey = '';
+		ethAddress = '';
+		addStatusMessage('Logged out successfully.');
 	}
 </script>
 
@@ -85,6 +92,11 @@
 			<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={handleSignIn}
 				>Sign In</button
 			>
+			{#if ethAddress || pkpPublicKey}
+				<button class="px-4 py-2 text-white bg-orange-400 rounded-lg" on:click={handleLogout}
+					>Logout</button
+				>
+			{/if}
 		</div>
 
 		{#if ethAddress}
