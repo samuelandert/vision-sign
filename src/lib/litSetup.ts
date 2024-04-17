@@ -13,7 +13,7 @@ let provider;
 
 export async function connectProvider() {
     const litNodeClient = new LitNodeClient({
-        litNetwork: 'manzano',
+        litNetwork: 'cayenne',
         debug: true,
     });
     await litNodeClient.connect();
@@ -39,16 +39,19 @@ export async function registerWithWebAuthn(namedPasskey: string) {
     return { pkpPublicKey: response.pkpPublicKey, ethAddress: response.ethAddress };
 }
 
+// This is a simplified example. You'll need to adjust based on the actual structure of authMethod
 export async function authenticateWithWebAuthn() {
     if (!provider) {
         throw new Error('Provider is not initialized.');
     }
     const authMethod = await provider.authenticate();
 
+    // Simplify or serialize authMethod for storage. Adjust this according to your needs.
+    const simplifiedAuthMethod = JSON.stringify(authMethod); // Example of simplification
+
     const pkps = await provider.fetchPKPsThroughRelayer(authMethod);
 
-    // Adjusted to also return ethAddress
     const pkpPublicKey = pkps.length > 0 ? pkps[0].publicKey : null;
     const ethAddress = pkps.length > 0 ? pkps[0].ethAddress : null;
-    return { authMethod, pkpPublicKey, ethAddress };
+    return { authMethod: simplifiedAuthMethod, pkpPublicKey, ethAddress };
 }

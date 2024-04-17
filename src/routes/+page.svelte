@@ -13,9 +13,9 @@
 		statusMessages = [...statusMessages, message];
 	}
 
-	function updateLocalStorage(pkpPublicKey: string, ethAddress: string) {
+	function updateLocalStorage(pkpPublicKey: string, ethAddress: string, authMethod: string) {
 		if (browser) {
-			me = { pkpPublicKey, ethAddress };
+			me = { pkpPublicKey, ethAddress, authMethod };
 			localStorage.setItem('me', JSON.stringify(me));
 		}
 	}
@@ -46,7 +46,6 @@
 			const result = await registerWithWebAuthn(namedPasskey);
 			pkpPublicKey = result.pkpPublicKey;
 			addStatusMessage('WebAuthn registration successful.');
-			updateLocalStorage(pkpPublicKey, ethAddress);
 			await handleSignIn();
 		} catch (error) {
 			console.error('Registration failed:', error);
@@ -64,7 +63,7 @@
 			if (result.pkpPublicKey && result.ethAddress) {
 				pkpPublicKey = result.pkpPublicKey;
 				ethAddress = result.ethAddress;
-				updateLocalStorage(pkpPublicKey, ethAddress);
+				updateLocalStorage(pkpPublicKey, ethAddress, result.authMethod);
 				addStatusMessage(`PKP Public Key fetched`);
 			} else {
 				addStatusMessage('No PKP Public Key or Eth Address received.');
@@ -74,6 +73,7 @@
 			addStatusMessage('Authentication failed.');
 		}
 	}
+
 	function handleLogout() {
 		localStorage.removeItem('me');
 		me = null;
