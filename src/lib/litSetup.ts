@@ -33,10 +33,11 @@ export async function registerWithWebAuthn() {
 
     // Verify registration and mint PKP through relay server
     const txHash = await provider.verifyAndMintPKPThroughRelayer(options);
-    const response = await provider.relay.pollRequestUntilTerminalState(txHash);
-
+    const response = await provider.relay.pollRequestUntilTerminalState(
+        txHash
+    );
     // Return public key of newly minted PKP
-    return response.pkpPublicKey;
+    return { pkpPublicKey: response.pkpPublicKey };
 }
 
 export async function authenticateWithWebAuthn() {
@@ -44,5 +45,11 @@ export async function authenticateWithWebAuthn() {
         throw new Error('Provider is not initialized.');
     }
     const authMethod = await provider.authenticate();
-    return authMethod;
+
+    const pkps = await provider.fetchPKPsThroughRelayer(authMethod);
+
+    // Adjusted to also return ethAddress
+    const pkpPublicKey = pkps.length > 0 ? pkps[0].publicKey : null;
+    const ethAddress = pkps.length > 0 ? pkps[0].ethAddress : null;
+    return { authMethod, pkpPublicKey, ethAddress };
 }

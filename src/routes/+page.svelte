@@ -3,13 +3,21 @@
 	import { connectProvider, registerWithWebAuthn, authenticateWithWebAuthn } from '../lib/litSetup';
 	import { browser } from '$app/environment';
 
-	let userId = '';
 	let isConnected = false;
 	let pkpPublicKey = '';
+	let ethAddress = '';
 	let statusMessages: string[] = [];
+	let me: { pkpPublicKey: string; ethAddress: string } | null = null;
 
 	function addStatusMessage(message: string) {
 		statusMessages = [...statusMessages, message];
+	}
+
+	function updateLocalStorage(pkpPublicKey: string, ethAddress: string) {
+		if (browser) {
+			me = { pkpPublicKey, ethAddress };
+			localStorage.setItem('me', JSON.stringify(me));
+		}
 	}
 
 	onMount(async () => {
@@ -19,7 +27,10 @@
 			isConnected = true;
 			addStatusMessage('Provider connected.');
 			if (browser) {
-				pkpPublicKey = localStorage.getItem('pkpPublicKey') || '';
+				const storedMe = localStorage.getItem('me');
+				me = storedMe ? JSON.parse(storedMe) : null;
+				pkpPublicKey = me?.pkpPublicKey || '';
+				ethAddress = me?.ethAddress || '';
 			}
 		} catch (error) {
 			console.error('Failed to connect to provider:', error);
@@ -31,12 +42,11 @@
 	async function handleRegister() {
 		try {
 			addStatusMessage('Registering with WebAuthn...');
-			pkpPublicKey = await registerWithWebAuthn();
-			alert(`PKP Public Key: ${pkpPublicKey}`);
+			const result = await registerWithWebAuthn();
+			pkpPublicKey = result.pkpPublicKey;
 			addStatusMessage('WebAuthn registration successful.');
-			if (browser) {
-				localStorage.setItem('pkpPublicKey', pkpPublicKey);
-			}
+			updateLocalStorage(pkpPublicKey, ethAddress);
+			await handleSignIn();
 		} catch (error) {
 			console.error('Registration failed:', error);
 			addStatusMessage('Registration failed.');
@@ -44,28 +54,20 @@
 	}
 
 	async function handleSignIn() {
-		// Check if pkpPublicKey is available. If not, try to authenticate to see if the user can sign in without registering again.
-		if (!pkpPublicKey) {
-			try {
-				addStatusMessage('Attempting to sign in...');
-				const authMethod = await authenticateWithWebAuthn();
-				console.log('Sign in successful:', authMethod);
-				addStatusMessage('Sign in successful.');
-			} catch (error) {
-				console.error('Sign in error:', error);
-				addStatusMessage('No passkey found. Please register first.');
-				// Optionally, prompt the user to register if authentication fails due to missing passkey.
-				// This could be a UI prompt or simply logging a message as done here.
-			}
-			return;
-		}
-
-		// If pkpPublicKey exists, proceed with the existing sign-in logic.
 		try {
 			addStatusMessage('Authenticating...');
-			const authMethod = await authenticateWithWebAuthn();
-			console.log('Authentication successful:', authMethod);
+			const result = await authenticateWithWebAuthn();
+			console.log('Authentication successful:', result.authMethod);
 			addStatusMessage('Authentication successful.');
+
+			if (result.pkpPublicKey && result.ethAddress) {
+				pkpPublicKey = result.pkpPublicKey;
+				ethAddress = result.ethAddress;
+				updateLocalStorage(pkpPublicKey, ethAddress);
+				addStatusMessage(`PKP Public Key fetched)`);
+			} else {
+				addStatusMessage('No PKP Public Key or Eth Address received.');
+			}
 		} catch (error) {
 			console.error('Error:', error);
 			addStatusMessage('Authentication failed.');
@@ -85,8 +87,8 @@
 			>
 		</div>
 
-		{#if pkpPublicKey}
-			<p class="p-4">PKP Public Key: {pkpPublicKey}</p>
+		{#if ethAddress}
+			<p class="p-4">Address: {ethAddress}</p>
 		{/if}
 	{:else}
 		<div class="p-2 bg-orange-400"><p>Connecting to Lit Protocol...</p></div>
