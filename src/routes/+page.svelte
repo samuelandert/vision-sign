@@ -41,8 +41,9 @@
 
 	async function handleRegister() {
 		try {
+			const namedPasskey = 'VisionID';
 			addStatusMessage('Registering with WebAuthn...');
-			const result = await registerWithWebAuthn();
+			const result = await registerWithWebAuthn(namedPasskey);
 			pkpPublicKey = result.pkpPublicKey;
 			addStatusMessage('WebAuthn registration successful.');
 			updateLocalStorage(pkpPublicKey, ethAddress);

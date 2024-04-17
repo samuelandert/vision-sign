@@ -24,20 +24,19 @@ export async function connectProvider() {
     return provider;
 }
 
-export async function registerWithWebAuthn() {
+export async function registerWithWebAuthn(namedPasskey: string) {
     if (!provider) {
         throw new Error('Provider is not initialized.');
     }
-    // Register new WebAuthn credential
-    const options = await provider.register();
+    // Generate registration options with the named passkey (username)
+    const options = await provider.register(namedPasskey);
 
-    // Verify registration and mint PKP through relay server
+    // Proceed with the registration process using the generated options
     const txHash = await provider.verifyAndMintPKPThroughRelayer(options);
-    const response = await provider.relay.pollRequestUntilTerminalState(
-        txHash
-    );
-    // Return public key of newly minted PKP
-    return { pkpPublicKey: response.pkpPublicKey };
+    const response = await provider.relay.pollRequestUntilTerminalState(txHash);
+
+    // Assuming response contains both pkpPublicKey and ethAddress
+    return { pkpPublicKey: response.pkpPublicKey, ethAddress: response.ethAddress };
 }
 
 export async function authenticateWithWebAuthn() {
