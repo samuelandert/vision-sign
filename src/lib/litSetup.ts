@@ -1,6 +1,7 @@
 import { LitAuthClient } from '@lit-protocol/lit-auth-client';
 import { ProviderType } from '@lit-protocol/constants';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
+import { PKPEthersWallet } from "@lit-protocol/pkp-ethers";
 
 // Initialize the LitAuthClient with your Lit Relay Server API key
 const litAuthClient = new LitAuthClient({
