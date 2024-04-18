@@ -6,6 +6,7 @@
 	let isConnected = false;
 	let ethAddress = '';
 	let statusMessages: string[] = [];
+	let isSignedIn = false; // New state to track if the user is signed in
 
 	function addStatusMessage(message: string) {
 		statusMessages = [...statusMessages, message];
@@ -19,7 +20,9 @@
 			addStatusMessage('Provider connected.');
 			if (browser) {
 				const litWalletSig = localStorage.getItem('lit-wallet-sig');
-				if (litWalletSig) {
+				const litSessionKey = localStorage.getItem('lit-session-key');
+				if (litWalletSig && litSessionKey) {
+					isSignedIn = true; // User is considered signed in if both keys exist
 					const { address } = JSON.parse(litWalletSig);
 					ethAddress = address;
 				}
@@ -52,6 +55,7 @@
 
 			if (result.ethAddress) {
 				ethAddress = result.ethAddress;
+				isSignedIn = true; // Update sign-in state
 				addStatusMessage(`Authentication details fetched.`);
 			} else {
 				addStatusMessage('No Eth Address received.');
@@ -66,6 +70,7 @@
 		localStorage.removeItem('lit-wallet-sig');
 		localStorage.removeItem('lit-session-key');
 		ethAddress = '';
+		isSignedIn = false; // Update sign-in state
 		addStatusMessage('Logged out successfully.');
 	}
 </script>
@@ -73,20 +78,22 @@
 <div class="w-screen h-screen bg-orange-50">
 	{#if isConnected}
 		<div class="p-2 bg-yellow-400"><p>Lit Protocol is connected!</p></div>
-		<div class="p-4">
-			<button class="px-4 py-2 text-white rounded-lg bg-blue-950" on:click={handleRegister}
-				>Register</button
-			>
-			<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={handleSignIn}
-				>Sign In</button
-			>
-			{#if ethAddress}
+		{#if isSignedIn}
+			<div class="p-4">
 				<button class="px-4 py-2 text-white bg-orange-400 rounded-lg" on:click={handleLogout}
 					>Logout</button
 				>
-			{/if}
-		</div>
-
+			</div>
+		{:else}
+			<div class="p-4">
+				<button class="px-4 py-2 text-white rounded-lg bg-blue-950" on:click={handleRegister}
+					>Register</button
+				>
+				<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={handleSignIn}
+					>Sign In</button
+				>
+			</div>
+		{/if}
 		{#if ethAddress}
 			<p class="p-4">Address: {ethAddress}</p>
 		{/if}
