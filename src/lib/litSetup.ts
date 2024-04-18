@@ -3,6 +3,8 @@ import { ProviderType } from '@lit-protocol/constants';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
+import { ethers } from 'ethers';
+import { pkpWalletStore } from '$lib/stores';
 
 // Initialize the LitAuthClient with your Lit Relay Server API key
 const litAuthClient = new LitAuthClient({
@@ -10,7 +12,6 @@ const litAuthClient = new LitAuthClient({
         relayApiKey: 'test-api-key', // Replace with your actual API key
     },
 });
-
 
 let provider;
 let litNodeClient;
@@ -21,8 +22,6 @@ const resourceAbilities = [
         ability: LitAbility.PKPSigning,
     },
 ];
-
-
 
 export async function connectProvider() {
     litNodeClient = new LitNodeClient({
@@ -78,7 +77,7 @@ export async function authenticateWithWebAuthn() {
             authMethods: [authMethod],
             expiration: params.expiration,
             resources: params.resources,
-            chainId: 1
+            chainId: 100
         });
         return response.authSig;
     };
@@ -87,18 +86,21 @@ export async function authenticateWithWebAuthn() {
         authContext: {
             client: litNodeClient,
             getSessionSigsProps: {
-                chain: 'ethereum',
+                chain: 'xdai',
                 expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
                 resourceAbilityRequests: resourceAbilities,
                 authNeededCallback,
             },
         },
         pkpPubKey: pkpPublicKey,
-        rpc: "https://chain-rpc.litprotocol.com/http",
+        rpc: "https://rpc.gnosischain.com",
     });
 
     await pkpWallet.init();
     console.log("pkp init succesfull, chain id: ", pkpWallet.chainId)
 
+    pkpWalletStore.set(pkpWallet);
+
     return { pkpPublicKey, ethAddress, sessionSigs: JSON.stringify(sessionSigs) };
 }
+

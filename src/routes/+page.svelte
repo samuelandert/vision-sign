@@ -2,11 +2,14 @@
 	import { onMount } from 'svelte';
 	import { connectProvider, registerWithWebAuthn, authenticateWithWebAuthn } from '../lib/litSetup';
 	import { browser } from '$app/environment';
+	import { pkpWalletStore } from '$lib/stores';
+	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
+	import Transactions from '$lib/components/Transactions.svelte';
 
 	let isConnected = false;
 	let ethAddress = '';
 	let statusMessages: string[] = [];
-	let isSignedIn = false; // New state to track if the user is signed in
+	let isSignedIn = false;
 
 	function addStatusMessage(message: string) {
 		statusMessages = [...statusMessages, message];
@@ -22,7 +25,7 @@
 				const litWalletSig = localStorage.getItem('lit-wallet-sig');
 				const litSessionKey = localStorage.getItem('lit-session-key');
 				if (litWalletSig && litSessionKey) {
-					isSignedIn = true; // User is considered signed in if both keys exist
+					isSignedIn = true;
 					const { address } = JSON.parse(litWalletSig);
 					ethAddress = address;
 				}
@@ -73,36 +76,78 @@
 		isSignedIn = false; // Update sign-in state
 		addStatusMessage('Logged out successfully.');
 	}
+
+	async function sendXDai() {
+		let pkpWallet;
+		const unsubscribe = pkpWalletStore.subscribe((value) => {
+			pkpWallet = value;
+		});
+		unsubscribe(); // Immediately unsubscribe since we only need the current value
+
+		if (!pkpWallet) {
+			console.error('PKP Wallet not initialized.');
+			return;
+		}
+
+		const recipientAddress = '0xRecipientAddressHere'; // Replace with the recipient's address
+		await sendTxWithPKPWallet(pkpWallet, recipientAddress);
+	}
 </script>
 
-<div class="w-screen h-screen bg-orange-50">
-	{#if isConnected}
-		<div class="p-2 bg-yellow-400"><p>Lit Protocol is connected!</p></div>
-		{#if isSignedIn}
-			<div class="p-4">
-				<button class="px-4 py-2 text-white bg-orange-400 rounded-lg" on:click={handleLogout}
-					>Logout</button
-				>
-			</div>
+<div class="w-screen h-screen bg-orange-50 grid-container">
+	<div class="p-4 left-content">
+		{#if isConnected}
+			{#if isSignedIn}
+				<div>
+					<button class="px-4 py-2 text-white bg-orange-400 rounded-lg" on:click={handleLogout}
+						>Logout</button
+					>
+					<button on:click={sendXDai} class="px-4 py-2 text-white bg-teal-500 rounded-lg"
+						>Send 0.01 xDai</button
+					>
+					{#if ethAddress}
+						<p class="p-4">Address: {ethAddress}</p>
+					{/if}
+					<div class="transactions">
+						<h2>Transactions</h2>
+						<Transactions />
+					</div>
+				</div>
+			{:else}
+				<div>
+					<button class="px-4 py-2 text-white rounded-lg bg-blue-950" on:click={handleRegister}
+						>Register</button
+					>
+					<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={handleSignIn}
+						>Sign In</button
+					>
+				</div>
+			{/if}
 		{:else}
-			<div class="p-4">
-				<button class="px-4 py-2 text-white rounded-lg bg-blue-950" on:click={handleRegister}
-					>Register</button
-				>
-				<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={handleSignIn}
-					>Sign In</button
-				>
-			</div>
+			Loading
 		{/if}
-		{#if ethAddress}
-			<p class="p-4">Address: {ethAddress}</p>
-		{/if}
-	{:else}
-		<div class="p-2 bg-orange-400"><p>Connecting to Lit Protocol...</p></div>
-	{/if}
-	<div class="p-4">
+	</div>
+	<div class="p-4 right-content">
 		{#each statusMessages as message}
 			<p>{message}</p>
 		{/each}
 	</div>
 </div>
+
+<style>
+	.grid-container {
+		display: grid;
+		grid-template-columns: 3fr 1fr; /* This sets the main content to take up 3/4 of the page and the status messages 1/4 */
+		gap: 1rem;
+	}
+
+	.full-width {
+		grid-column: 1 / -1; /* This makes the element span the full width of the grid */
+	}
+
+	.left-content,
+	.right-content {
+		display: flex;
+		flex-direction: column;
+	}
+</style>
