@@ -109,7 +109,6 @@
 						<p class="p-4">Address: {ethAddress}</p>
 					{/if}
 					<div class="transactions">
-						<h2>Transactions</h2>
 						<Transactions />
 					</div>
 				</div>
