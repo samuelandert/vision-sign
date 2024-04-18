@@ -1,7 +1,7 @@
 import { LitAuthClient } from '@lit-protocol/lit-auth-client';
 import { ProviderType } from '@lit-protocol/constants';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
-import { PKPEthersWallet } from "@lit-protocol/pkp-ethers";
+import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
 
 // Initialize the LitAuthClient with your Lit Relay Server API key
 const litAuthClient = new LitAuthClient({
@@ -29,30 +29,36 @@ export async function registerWithWebAuthn(namedPasskey: string) {
     if (!provider) {
         throw new Error('Provider is not initialized.');
     }
-    // Generate registration options with the named passkey (username)
     const options = await provider.register(namedPasskey);
-
-    // Proceed with the registration process using the generated options
     const txHash = await provider.verifyAndMintPKPThroughRelayer(options);
     const response = await provider.relay.pollRequestUntilTerminalState(txHash);
-
-    // Assuming response contains both pkpPublicKey and ethAddress
     return { pkpPublicKey: response.pkpPublicKey, ethAddress: response.ethAddress };
 }
 
-// This is a simplified example. You'll need to adjust based on the actual structure of authMethod
 export async function authenticateWithWebAuthn() {
     if (!provider) {
         throw new Error('Provider is not initialized.');
     }
     const authMethod = await provider.authenticate();
-
-    // Simplify or serialize authMethod for storage. Adjust this according to your needs.
-    const simplifiedAuthMethod = JSON.stringify(authMethod); // Example of simplification
-
     const pkps = await provider.fetchPKPsThroughRelayer(authMethod);
+    if (pkps.length === 0) {
+        throw new Error('No PKP found for authenticated method.');
+    }
+    const pkpPublicKey = pkps[0].publicKey;
+    const ethAddress = pkps[0].ethAddress;
 
-    const pkpPublicKey = pkps.length > 0 ? pkps[0].publicKey : null;
-    const ethAddress = pkps.length > 0 ? pkps[0].ethAddress : null;
-    return { authMethod: simplifiedAuthMethod, pkpPublicKey, ethAddress };
+    // Generate SessionSigs
+    const sessionSigs = await provider.getSessionSigs({
+        authMethod: authMethod,
+        pkpPublicKey: pkpPublicKey,
+        sessionSigsParams: {
+            chain: 'ethereum',
+            resourceAbilityRequests: [{
+                resource: new LitActionResource("*"),
+                ability: LitAbility.PKPSigning,
+            }],
+        },
+    });
+
+    return { pkpPublicKey, ethAddress, sessionSigs: JSON.stringify(sessionSigs) };
 }

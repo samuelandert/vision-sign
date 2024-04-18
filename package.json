@@ -37,6 +37,7 @@
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@lit-protocol/auth-helpers": "^4.2.1",
     "@lit-protocol/constants": "^4.2.1",
     "@lit-protocol/lit-auth-client": "^4.2.1",
     "@lit-protocol/lit-node-client": "^4.2.1",

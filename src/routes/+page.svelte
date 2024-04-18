@@ -13,10 +13,10 @@
 		statusMessages = [...statusMessages, message];
 	}
 
-	function updateLocalStorage(pkpPublicKey: string, ethAddress: string, authMethod: string) {
+	function updateLocalStorage(pkpPublicKey: string, ethAddress: string, sessionSigs: string) {
 		if (browser) {
-			me = { pkpPublicKey, ethAddress, authMethod };
-			localStorage.setItem('me', JSON.stringify(me));
+			me = { pkpPublicKey, ethAddress };
+			localStorage.setItem('me', JSON.stringify({ pkpPublicKey, ethAddress, sessionSigs }));
 		}
 	}
 
@@ -63,8 +63,8 @@
 			if (result.pkpPublicKey && result.ethAddress) {
 				pkpPublicKey = result.pkpPublicKey;
 				ethAddress = result.ethAddress;
-				updateLocalStorage(pkpPublicKey, ethAddress, result.authMethod);
-				addStatusMessage(`PKP Public Key fetched`);
+				updateLocalStorage(pkpPublicKey, ethAddress, JSON.stringify(result.sessionSigs));
+				addStatusMessage(`PKP Public Key and SessionSig fetched`);
 			} else {
 				addStatusMessage('No PKP Public Key or Eth Address received.');
 			}
