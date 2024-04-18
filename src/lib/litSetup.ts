@@ -2,6 +2,7 @@ import { LitAuthClient } from '@lit-protocol/lit-auth-client';
 import { ProviderType } from '@lit-protocol/constants';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
+import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 
 // Initialize the LitAuthClient with your Lit Relay Server API key
 const litAuthClient = new LitAuthClient({
@@ -10,10 +11,21 @@ const litAuthClient = new LitAuthClient({
     },
 });
 
+
 let provider;
+let litNodeClient;
+
+const resourceAbilities = [
+    {
+        resource: new LitActionResource("*"),
+        ability: LitAbility.PKPSigning,
+    },
+];
+
+
 
 export async function connectProvider() {
-    const litNodeClient = new LitNodeClient({
+    litNodeClient = new LitNodeClient({
         litNetwork: 'cayenne',
         debug: true,
     });
@@ -59,6 +71,34 @@ export async function authenticateWithWebAuthn() {
             }],
         },
     });
+
+    const authNeededCallback = async (params: AuthCallbackParams) => {
+        const response = await litNodeClient.signSessionKey({
+            statement: params.statement,
+            authMethods: [authMethod],
+            expiration: params.expiration,
+            resources: params.resources,
+            chainId: 1
+        });
+        return response.authSig;
+    };
+
+    const pkpWallet = new PKPEthersWallet({
+        authContext: {
+            client: litNodeClient,
+            getSessionSigsProps: {
+                chain: 'ethereum',
+                expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
+                resourceAbilityRequests: resourceAbilities,
+                authNeededCallback,
+            },
+        },
+        pkpPubKey: pkpPublicKey,
+        rpc: "https://chain-rpc.litprotocol.com/http",
+    });
+
+    await pkpWallet.init();
+    console.log("pkp init succesfull, chain id: ", pkpWallet.chainId)
 
     return { pkpPublicKey, ethAddress, sessionSigs: JSON.stringify(sessionSigs) };
 }
