@@ -90,7 +90,7 @@
 		}
 
 		const recipientAddress = '0xRecipientAddressHere'; // Replace with the recipient's address
-		await sendTxWithPKPWallet(pkpWallet, recipientAddress);
+		await sendTxWithPKPWallet(pkpWallet);
 	}
 </script>
 

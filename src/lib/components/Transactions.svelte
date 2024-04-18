@@ -3,10 +3,14 @@
 	import axios from 'axios';
 	import Time from 'svelte-time';
 	import Icon from '@iconify/svelte';
+	import { pkpWalletStore } from '$lib/stores';
 
 	let transactions = [];
 	let balance = 0;
-	const address = '0xDdd18d4850E57E2AcD0672AB3A5aEC87F1f16818'; // Hardcoded PKP wallet address
+	let address = '';
+
+	// Subscribe to pkpWalletStore and extract the address
+	$: $pkpWalletStore, (address = $pkpWalletStore ? $pkpWalletStore.address : '');
 
 	async function fetchBalanceAndTransactions() {
 		try {
@@ -46,6 +50,10 @@
 	onMount(() => {
 		fetchBalanceAndTransactions();
 	});
+
+	$: if (address) {
+		fetchBalanceAndTransactions();
+	}
 </script>
 
 <div class="wallet-container">
