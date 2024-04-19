@@ -1,17 +1,31 @@
-*Install*
+# Getting started
 
+**Install**
+
+```
 bun i
+```
 
-*Run*
+**Run**
 
+```
 bun dev -- --open
+````
 
-*mkcert (localhost https)*
+**add localhost https for Webauthn to work**
 
+```
 brew install mkcert
-mkcert -install
-mkcert localhost
 
-*important add to gitignore:*
+mkcert -install
+
+mkcert localhost
+```
+
+**important add to gitignore:**
+
+```
 localhost.pem
+
 localhost-key.pem
+```
