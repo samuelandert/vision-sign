@@ -3,7 +3,6 @@ import { ProviderType } from '@lit-protocol/constants';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
-import { ethers } from 'ethers';
 import { pkpWalletStore } from '$lib/stores';
 
 // Initialize the LitAuthClient with your Lit Relay Server API key

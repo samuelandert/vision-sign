@@ -86,11 +86,18 @@
 
 		if (!pkpWallet) {
 			console.error('PKP Wallet not initialized.');
+			addStatusMessage('PKP Wallet not initialized.'); // Inform the user
 			return;
 		}
 
-		const recipientAddress = '0xRecipientAddressHere'; // Replace with the recipient's address
-		await sendTxWithPKPWallet(pkpWallet);
+		try {
+			addStatusMessage('Initiating transaction...');
+			await sendTxWithPKPWallet(pkpWallet);
+			addStatusMessage('Transaction successful! Check your wallet.'); // Inform the user of success
+		} catch (error) {
+			console.error('Transaction failed:', error);
+			addStatusMessage('Transaction failed. Please try again.'); // Inform the user of failure
+		}
 	}
 </script>
 
@@ -99,15 +106,15 @@
 		{#if isConnected}
 			{#if isSignedIn}
 				<div>
-					<button class="px-4 py-2 text-white bg-orange-400 rounded-lg" on:click={handleLogout}
+					<button class="px-4 py-2 bg-yellow-400 rounded-lg text-blue_950" on:click={handleLogout}
 						>Logout</button
 					>
-					<button on:click={sendXDai} class="px-4 py-2 text-white bg-teal-500 rounded-lg"
-						>Send 0.01 xDai</button
+					<button on:click={sendXDai} class="px-4 py-2 text-white rounded-lg bg-blue-950"
+						>Send 0.01 $</button
 					>
-					{#if ethAddress}
+					<!-- {#if ethAddress}
 						<p class="p-4">Address: {ethAddress}</p>
-					{/if}
+					{/if} -->
 					<div class="transactions">
 						<Transactions />
 					</div>
