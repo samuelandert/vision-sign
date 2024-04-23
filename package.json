@@ -44,6 +44,7 @@
     "@lit-protocol/lit-node-client": "^4.2.1",
     "@lit-protocol/pkp-client": "^4.2.1",
     "@lit-protocol/pkp-ethers": "^4.2.1",
+    "@macfja/svelte-persistent-store": "^2.4.1",
     "@simplewebauthn/browser": "^10.0.0",
     "axios": "^1.6.8",
     "buffer": "^6.0.3",

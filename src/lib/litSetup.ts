@@ -3,7 +3,7 @@ import { ProviderType } from '@lit-protocol/constants';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
-import { pkpWalletStore } from '$lib/stores';
+import { pkpWalletStore, meStore } from '$lib/stores'; // Import meStore
 
 const litAuthClient = new LitAuthClient({
     litRelayConfig: {
@@ -41,7 +41,8 @@ export async function registerWithWebAuthn(namedPasskey: string) {
     const options = await provider.register(namedPasskey);
     const txHash = await provider.verifyAndMintPKPThroughRelayer(options);
     const response = await provider.relay.pollRequestUntilTerminalState(txHash);
-    return { pkpPublicKey: response.pkpPublicKey, ethAddress: response.ethAddress };
+    // Update meStore directly
+    meStore.set({ pkpPubKey: response.pkpPublicKey, ethAddress: response.ethAddress });
 }
 
 export async function authenticateWithWebAuthn() {
@@ -82,10 +83,9 @@ export async function authenticateWithWebAuthn() {
     });
 
     await pkpWallet.init();
-    console.log("pkp init succesfull ", pkpWallet)
+    console.log("pkp init successful", pkpWallet);
 
     pkpWalletStore.set(pkpWallet);
-
-    return { pkpPublicKey, ethAddress };
+    // Update meStore directly
+    meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress });
 }
-

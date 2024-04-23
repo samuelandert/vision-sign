@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { connectProvider, registerWithWebAuthn, authenticateWithWebAuthn } from '../lib/litSetup';
-	import { browser } from '$app/environment';
-	import { pkpWalletStore } from '$lib/stores';
+	import { meStore } from '$lib/stores'; // Use only meStore
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
 	import Transactions from '$lib/components/Transactions.svelte';
+	import { pkpWalletStore } from '$lib/stores';
 
 	let isConnected = false;
-	let ethAddress = '';
 	let statusMessages: string[] = [];
 	let isSignedIn = false;
+
+	// Subscribe to meStore to update local variables
+	meStore.subscribe(($me) => {
+		isSignedIn = $me.pkpPubKey && $me.ethAddress;
+	});
 
 	function addStatusMessage(message: string) {
 		statusMessages = [...statusMessages, message];
@@ -21,15 +25,6 @@
 			await connectProvider();
 			isConnected = true;
 			addStatusMessage('Provider connected.');
-			if (browser) {
-				const litWalletSig = localStorage.getItem('lit-wallet-sig');
-				const litSessionKey = localStorage.getItem('lit-session-key');
-				if (litWalletSig && litSessionKey) {
-					isSignedIn = true;
-					const { address } = JSON.parse(litWalletSig);
-					ethAddress = address;
-				}
-			}
 		} catch (error) {
 			console.error('Failed to connect to provider:', error);
 			isConnected = false;
@@ -39,11 +34,10 @@
 
 	async function handleRegister() {
 		try {
-			const namedPasskey = 'VisionID';
 			addStatusMessage('Registering with WebAuthn...');
-			await registerWithWebAuthn(namedPasskey);
+			await registerWithWebAuthn('VisionID');
 			addStatusMessage('WebAuthn registration successful.');
-			await handleSignIn();
+			isSignedIn = true;
 		} catch (error) {
 			console.error('Registration failed:', error);
 			addStatusMessage('Registration failed.');
@@ -53,27 +47,18 @@
 	async function handleSignIn() {
 		try {
 			addStatusMessage('Authenticating...');
-			const result = await authenticateWithWebAuthn();
+			await authenticateWithWebAuthn();
 			addStatusMessage('Authentication successful.');
-
-			if (result.ethAddress) {
-				ethAddress = result.ethAddress;
-				isSignedIn = true; // Update sign-in state
-				addStatusMessage(`Authentication details fetched.`);
-			} else {
-				addStatusMessage('No Eth Address received.');
-			}
+			isSignedIn = true;
 		} catch (error) {
-			console.error('Error:', error);
+			console.error('Authentication failed:', error);
 			addStatusMessage('Authentication failed.');
 		}
 	}
 
 	function handleLogout() {
-		localStorage.removeItem('lit-wallet-sig');
-		localStorage.removeItem('lit-session-key');
-		ethAddress = '';
-		isSignedIn = false; // Update sign-in state
+		meStore.set({});
+		isSignedIn = false;
 		addStatusMessage('Logged out successfully.');
 	}
 
@@ -109,12 +94,9 @@
 					<button class="px-4 py-2 bg-yellow-400 rounded-lg text-blue_950" on:click={handleLogout}
 						>Logout</button
 					>
-					<button on:click={sendXDai} class="px-4 py-2 text-white rounded-lg bg-blue-950"
-						>Send 0.01 $</button
+					<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={sendXDai}
+						>Send 0.01$</button
 					>
-					<!-- {#if ethAddress}
-						<p class="p-4">Address: {ethAddress}</p>
-					{/if} -->
 					<div class="transactions">
 						<Transactions />
 					</div>
@@ -130,7 +112,7 @@
 				</div>
 			{/if}
 		{:else}
-			Loading
+			Loading...
 		{/if}
 	</div>
 	<div class="p-4 right-content">
@@ -143,12 +125,8 @@
 <style>
 	.grid-container {
 		display: grid;
-		grid-template-columns: 3fr 1fr; /* This sets the main content to take up 3/4 of the page and the status messages 1/4 */
+		grid-template-columns: 3fr 1fr;
 		gap: 1rem;
-	}
-
-	.full-width {
-		grid-column: 1 / -1; /* This makes the element span the full width of the grid */
 	}
 
 	.left-content,

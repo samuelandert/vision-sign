@@ -3,16 +3,17 @@
 	import axios from 'axios';
 	import Time from 'svelte-time';
 	import Icon from '@iconify/svelte';
-	import { pkpWalletStore } from '$lib/stores';
+	import { meStore } from '$lib/stores'; // Import meStore instead of pkpWalletStore
 
 	let transactions = [];
 	let balance = 0;
 	let address = '';
 
-	// Subscribe to pkpWalletStore and extract the address
-	$: $pkpWalletStore, (address = $pkpWalletStore ? $pkpWalletStore.address : '');
+	// Subscribe to meStore and extract the ethAddress
+	$: $meStore, (address = $meStore.ethAddress || '');
 
 	async function fetchBalanceAndTransactions() {
+		if (!address) return; // Check if address is not empty
 		try {
 			const balanceResponse = await axios.get('https://api.gnosisscan.io/api', {
 				params: {
@@ -51,6 +52,7 @@
 		fetchBalanceAndTransactions();
 	});
 
+	// Reactively fetch balance and transactions whenever the address changes
 	$: if (address) {
 		fetchBalanceAndTransactions();
 	}
