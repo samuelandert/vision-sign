@@ -63,25 +63,13 @@
 	}
 
 	async function sendXDai() {
-		let pkpWallet;
-		const unsubscribe = pkpWalletStore.subscribe((value) => {
-			pkpWallet = value;
-		});
-		unsubscribe(); // Immediately unsubscribe since we only need the current value
-
-		if (!pkpWallet) {
-			console.error('PKP Wallet not initialized.');
-			addStatusMessage('PKP Wallet not initialized.'); // Inform the user
-			return;
-		}
-
 		try {
 			addStatusMessage('Initiating transaction...');
-			await sendTxWithPKPWallet(pkpWallet);
-			addStatusMessage('Transaction successful! Check your wallet.'); // Inform the user of success
+			await sendTxWithPKPWallet();
+			addStatusMessage('Transaction successful! Check your wallet.');
 		} catch (error) {
 			console.error('Transaction failed:', error);
-			addStatusMessage('Transaction failed. Please try again.'); // Inform the user of failure
+			addStatusMessage('Transaction failed. Please try again.');
 		}
 	}
 </script>

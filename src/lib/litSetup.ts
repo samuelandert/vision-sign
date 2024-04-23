@@ -87,6 +87,6 @@ export async function authenticateWithWebAuthn() {
     console.log("pkp init successful", pkpWallet);
 
     pkpWalletStore.set(pkpWallet);
-    // Update meStore directly
     meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress });
 }
+
