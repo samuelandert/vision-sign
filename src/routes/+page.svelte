@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { connectProvider, registerWithWebAuthn, authenticateWithWebAuthn } from '../lib/litSetup';
-	import { meStore } from '$lib/stores'; // Use only meStore
+	import { meStore, pkpWalletStore } from '$lib/stores'; // Use only meStore
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
 	import Transactions from '$lib/components/Transactions.svelte';
-	import { pkpWalletStore } from '$lib/stores';
 
 	let isConnected = false;
 	let statusMessages: string[] = [];
@@ -58,8 +57,13 @@
 
 	function handleLogout() {
 		meStore.set({});
+		pkpWalletStore.set(null);
 		isSignedIn = false;
 		addStatusMessage('Logged out successfully.');
+
+		// Clearing lit-wallet-sig and lit-session-key from localStorage
+		localStorage.removeItem('lit-wallet-sig');
+		localStorage.removeItem('lit-session-key');
 	}
 
 	async function sendXDai() {
