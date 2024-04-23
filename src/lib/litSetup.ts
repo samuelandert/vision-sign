@@ -13,6 +13,7 @@ const litAuthClient = new LitAuthClient({
 
 let provider;
 let litNodeClient;
+let authSig;
 
 const resourceAbilities = [
     {
@@ -57,7 +58,7 @@ export async function authenticateWithWebAuthn() {
     const pkpPublicKey = pkps[0].publicKey;
     const ethAddress = pkps[0].ethAddress;
 
-    const authNeededCallback = async (params: AuthCallbackParams) => {
+    authSig = async (params: AuthCallbackParams) => {
         const response = await litNodeClient.signSessionKey({
             statement: params.statement,
             authMethods: [authMethod],
@@ -75,7 +76,7 @@ export async function authenticateWithWebAuthn() {
                 chain: 'xdai',
                 expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
                 resourceAbilityRequests: resourceAbilities,
-                authNeededCallback,
+                authNeededCallback: authSig
             },
         },
         pkpPubKey: pkpPublicKey,
