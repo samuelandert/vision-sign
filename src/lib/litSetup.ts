@@ -5,10 +5,9 @@ import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 import { pkpWalletStore } from '$lib/stores';
 
-// Initialize the LitAuthClient with your Lit Relay Server API key
 const litAuthClient = new LitAuthClient({
     litRelayConfig: {
-        relayApiKey: 'test-api-key', // Replace with your actual API key
+        relayApiKey: 'test-api-key',
     },
 });
 
@@ -57,19 +56,6 @@ export async function authenticateWithWebAuthn() {
     const pkpPublicKey = pkps[0].publicKey;
     const ethAddress = pkps[0].ethAddress;
 
-    // Generate SessionSigs
-    const sessionSigs = await provider.getSessionSigs({
-        authMethod: authMethod,
-        pkpPublicKey: pkpPublicKey,
-        sessionSigsParams: {
-            chain: 'ethereum',
-            resourceAbilityRequests: [{
-                resource: new LitActionResource("*"),
-                ability: LitAbility.PKPSigning,
-            }],
-        },
-    });
-
     const authNeededCallback = async (params: AuthCallbackParams) => {
         const response = await litNodeClient.signSessionKey({
             statement: params.statement,
@@ -96,10 +82,10 @@ export async function authenticateWithWebAuthn() {
     });
 
     await pkpWallet.init();
-    console.log("pkp init succesfull, chain id: ", pkpWallet.chainId)
+    console.log("pkp init succesfull ", pkpWallet)
 
     pkpWalletStore.set(pkpWallet);
 
-    return { pkpPublicKey, ethAddress, sessionSigs: JSON.stringify(sessionSigs) };
+    return { pkpPublicKey, ethAddress };
 }
 
