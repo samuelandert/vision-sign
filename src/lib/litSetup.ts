@@ -58,6 +58,10 @@ export async function registerWithWebAuthn(namedPasskey: string) {
     meStore.set({ pkpPubKey: response.pkpPublicKey, ethAddress: response.ethAddress });
 }
 
+import { wcClientStore } from './stores'; // Import the store
+
+
+
 export async function authenticateWithWebAuthn() {
     if (!provider) {
         throw new Error('Provider is not initialized.');
@@ -98,8 +102,6 @@ export async function authenticateWithWebAuthn() {
     await pkpWallet.init();
     console.log("pkpWallet init successful");
 
-
-
     pkpWalletStore.set(pkpWallet);
     meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress });
 
@@ -124,19 +126,6 @@ export async function authenticateWithWebAuthn() {
 
     console.log("wsclient connected")
 
-    wcClient.on("session_proposal", async (proposal) => {
-        console.log("Received session proposal: ", proposal);
+    wcClientStore.set(wcClient);
 
-        // Accept session proposal
-        await wcClient.approveSessionProposal(proposal);
-
-        // Log active sessions
-        const sessions = Object.values(wcClient.getActiveSessions());
-        for (const session of sessions) {
-            const { name, url } = session.peer.metadata;
-            console.log(`Active Session: ${name} (${url})`);
-        }
-    });
-    const uri = "wc:635ea3b8c896ae068e940f973909e174b8204e65e14d85978cbfd8588031671c@2?expiryTimestamp=1713888440&relay-protocol=irn&symKey=00fd9028b41389e067b696d8f681da71d63b0be5162afdabfc4893a16ecf4963"
-    await wcClient.pair({ uri: uri });
 }

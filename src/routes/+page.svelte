@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { connectProvider, registerWithWebAuthn, authenticateWithWebAuthn } from '../lib/litSetup';
-	import { meStore, pkpWalletStore } from '$lib/stores'; // Use only meStore
+	import { meStore, pkpWalletStore, wcClientStore } from '$lib/stores';
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
 	import Transactions from '$lib/components/Transactions.svelte';
 
 	let isConnected = false;
 	let statusMessages: string[] = [];
 	let isSignedIn = false;
+	let wcClient;
 
-	// Subscribe to meStore to update local variables
 	meStore.subscribe(($me) => {
 		isSignedIn = $me.pkpPubKey && $me.ethAddress;
+	});
+	wcClientStore.subscribe((value) => {
+		wcClient = value;
 	});
 
 	function addStatusMessage(message: string) {
@@ -76,6 +79,59 @@
 			addStatusMessage('Transaction failed. Please try again.');
 		}
 	}
+
+	async function handleConnectDapp() {
+		const uri = prompt('Please enter the DApp URI:');
+		if (!uri) {
+			addStatusMessage('No URI provided.');
+			return;
+		}
+
+		if (!wcClient) {
+			addStatusMessage('WalletConnect client not initialized.');
+			return;
+		}
+
+		// Retrieve the SignClient from the wcClient instance
+		const signClient = wcClient.getSignClient();
+
+		wcClient.on('session_proposal', async (proposal) => {
+			console.log('Received session proposal: ', proposal);
+			await wcClient.approveSessionProposal(proposal);
+			addStatusMessage(`Connected to DApp: ${proposal.name}`);
+		});
+
+		wcClient.on('session_request', async (requestEvent) => {
+			console.log('Received session request: ', requestEvent);
+
+			const { topic, params } = requestEvent;
+			const { request } = params;
+			const requestSession = signClient.session.get(topic);
+			const { name, url } = requestSession.peer.metadata;
+
+			// Prompt user to approve or decline the session request
+			const userApproval = confirm(
+				`Approve ${request.method} request for session ${name} (${url})?`
+			);
+			if (userApproval) {
+				await wcClient.approveSessionRequest(requestEvent);
+				console.log(`Request approved. Check the ${name} dapp to confirm.`);
+				addStatusMessage(`Request approved for ${name}.`);
+			} else {
+				await wcClient.rejectSessionRequest(requestEvent);
+				console.log(`Request declined for ${name}.`);
+				addStatusMessage(`Request declined for ${name}.`);
+			}
+		});
+
+		try {
+			await wcClient.pair({ uri });
+			addStatusMessage('DApp connection initiated.');
+		} catch (error) {
+			console.error('DApp connection failed:', error);
+			addStatusMessage('DApp connection failed.');
+		}
+	}
 </script>
 
 <div class="w-screen h-screen bg-orange-50 grid-container">
@@ -88,6 +144,9 @@
 					>
 					<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={sendXDai}
 						>Send 0.01$</button
+					>
+					<button class="px-4 py-2 text-white bg-blue-600 rounded-lg" on:click={handleConnectDapp}
+						>Connect Dapp</button
 					>
 					<div class="transactions">
 						<Transactions />
