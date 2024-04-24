@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Transactions from '$lib/components/Transactions.svelte';
 	import { meStore, pkpWalletStore } from '$lib/stores';
-	import { registerWithWebAuthn, authenticateWithWebAuthn } from '$lib/webAuthn';
+	import { registerWithWebAuthn, authenticateWithWebAuthn } from '$lib/initPKPWallet';
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
 
 	let isSignedIn = false;
