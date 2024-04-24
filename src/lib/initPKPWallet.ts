@@ -1,5 +1,6 @@
 import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
-import { PKPEthersWallet } from '@lit-protocol/pkp-ethers'; import { pkpWalletStore, meStore, litNodeClientStore, litProviderStore, ensureLitClientsAreInitialized } from '$lib/stores';
+import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
+import { pkpWalletStore, meStore, litNodeClientStore, litProviderStore, ensureLitClientsAreInitialized, authMethodStore } from '$lib/stores';
 
 let authSig;
 
@@ -34,6 +35,8 @@ export async function authenticateWithWebAuthn() {
         throw new Error('Provider is not initialized.');
     }
     const authMethod = await provider.authenticate();
+    authMethodStore.set(authMethod);
+
     const pkps = await provider.fetchPKPsThroughRelayer(authMethod);
     if (pkps.length === 0) {
         throw new Error('No PKP found for authenticated method.');
@@ -42,15 +45,18 @@ export async function authenticateWithWebAuthn() {
     const ethAddress = pkps[0].ethAddress;
 
     authSig = (async (params: AuthCallbackParams) => {
+        let currentAuthMethod;
+        authMethodStore.subscribe(value => { currentAuthMethod = value; }); // Subscribe to the authMethod store
         const response = await litNodeClient.signSessionKey({
             statement: params.statement,
-            authMethods: [authMethod],
+            authMethods: [currentAuthMethod],
             expiration: params.expiration,
             resources: params.resources,
             chainId: 100
         });
         return response.authSig;
     });
+
     const pkpWallet = new PKPEthersWallet({
         authContext: {
             client: litNodeClient,

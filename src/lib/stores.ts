@@ -15,6 +15,7 @@ export const meStore = persist(meStoreInitial, createCookieStorage(), "me");
 export const litNodeClientStore = writable<LitNodeClient | null>(null);
 export const litProviderStore = writable<any | null>(null);
 export const connectionStatusStore = writable<string>('Disconnected');
+export const authMethodStore = writable<any | null>(null); // New store for authMethod
 
 // Ensure Lit clients are initialized before proceeding with any operation
 export async function ensureLitClientsAreInitialized() {
@@ -24,4 +25,3 @@ export async function ensureLitClientsAreInitialized() {
         await initializeLitClients();
     }
 }
-// Define a store for authSig
