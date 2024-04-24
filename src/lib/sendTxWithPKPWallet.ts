@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { pkpWalletStore } from './stores';
-import { authenticateWithWebAuthn } from './litSetup';
+import { authenticateWithWebAuthn } from './webAuthn';
 
 export async function sendTxWithPKPWallet() {
     let pkpWallet;

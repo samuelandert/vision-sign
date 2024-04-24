@@ -1,24 +1,26 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { persist, createCookieStorage } from "@macfja/svelte-persistent-store";
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
-import { PKPWalletConnect } from "@lit-protocol/pkp-walletconnect";
+import { LitNodeClient } from '@lit-protocol/lit-node-client';
+import { initializeLitClients } from './appInit';
 
-
-// Existing PKP Wallet Store
-export const pkpWalletStore = writable<PKPEthersWallet | null>(null);
-
-// Define a type for the 'me' object
 interface MeObject {
     pkpPubKey: string;
     ethAddress: string;
 }
 
-// Create a writable store for the 'me' object with an initial value of an empty object
+export const pkpWalletStore = writable<PKPEthersWallet | null>(null);
 const meStoreInitial = writable<MeObject>({ pkpPubKey: '', ethAddress: '' });
-
-// Persist the 'meStore' to a cookie
 export const meStore = persist(meStoreInitial, createCookieStorage(), "me");
+export const litNodeClientStore = writable<LitNodeClient | null>(null);
+export const litProviderStore = writable<any | null>(null);
+export const connectionStatusStore = writable<string>('Disconnected');
 
-
-// Initialize wcClient store with a null value
-export const wcClientStore = writable<PKPWalletConnect | null>(null);
+// Ensure Lit clients are initialized before proceeding with any operation
+export async function ensureLitClientsAreInitialized() {
+    const litNodeClient = get(litNodeClientStore);
+    const litProvider = get(litProviderStore);
+    if (!litNodeClient || !litProvider) {
+        await initializeLitClients();
+    }
+}

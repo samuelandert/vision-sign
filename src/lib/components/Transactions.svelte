@@ -58,57 +58,59 @@
 	}
 </script>
 
-<div class="wallet-container">
-	<div class="pb-4 account-info">
-		ACCOUNT
-		<p class="text-2xl">{address}</p>
-	</div>
-	<div class="pb-4 balance-info">
-		BALANCE
-		<p class="text-5xl">{balance.toFixed(4)} $</p>
-	</div>
-	<div class="pb-4 transactions-info">
-		{#if transactions.length > 0}
-			<div class="pb-4">TRANSACTIONS</div>
-			<ul class="pl-5 list-disc">
-				{#each transactions as transaction (transaction.hash)}
-					<li class="flex items-center justify-between mb-4">
-						<div class="flex items-center">
-							<Icon
-								icon={transaction.to.toLowerCase() === address.toLowerCase()
-									? 'ri:user-received-2-line'
-									: 'ri:user-shared-line'}
-								width="44"
-								height="44"
-							/>
-							<div>
-								<p class="text-xl">
-									{transaction.to.toLowerCase() === address.toLowerCase()
-										? 'Received from'
-										: 'Sent to'}
-									{transaction.from.substring(0, 10)}...
+{#if address}
+	<div class="wallet-container">
+		<div class="pb-4 account-info">
+			ACCOUNT
+			<p class="text-2xl">{address}</p>
+		</div>
+		<div class="pb-4 balance-info">
+			BALANCE
+			<p class="text-5xl">{balance.toFixed(4)} $</p>
+		</div>
+		<div class="pb-4 transactions-info">
+			{#if transactions.length > 0}
+				<div class="pb-4">TRANSACTIONS</div>
+				<ul class="pl-5 list-disc">
+					{#each transactions as transaction (transaction.hash)}
+						<li class="flex items-center justify-between mb-4">
+							<div class="flex items-center">
+								<Icon
+									icon={transaction.to.toLowerCase() === address.toLowerCase()
+										? 'ri:user-received-2-line'
+										: 'ri:user-shared-line'}
+									width="44"
+									height="44"
+								/>
+								<div>
+									<p class="text-xl">
+										{transaction.to.toLowerCase() === address.toLowerCase()
+											? 'Received from'
+											: 'Sent to'}
+										{transaction.from.substring(0, 10)}...
+									</p>
+									<p class="text-sm text-gray-500">
+										{transaction.hash}
+									</p>
+								</div>
+							</div>
+							<div class="text-right">
+								<p class="text-2xl">
+									{transaction.value.toFixed(4)} $
 								</p>
 								<p class="text-sm text-gray-500">
-									{transaction.hash}
+									<Time timestamp={transaction.timestamp} relative />
 								</p>
 							</div>
-						</div>
-						<div class="text-right">
-							<p class="text-2xl">
-								{transaction.value.toFixed(4)} $
-							</p>
-							<p class="text-sm text-gray-500">
-								<Time timestamp={transaction.timestamp} relative />
-							</p>
-						</div>
-					</li>
-				{/each}
-			</ul>
-		{:else}
-			<p>No transactions found.</p>
-		{/if}
+						</li>
+					{/each}
+				</ul>
+			{:else}
+				<p>No transactions found.</p>
+			{/if}
+		</div>
 	</div>
-</div>
+{/if}
 
 <style>
 	.wallet-container {
