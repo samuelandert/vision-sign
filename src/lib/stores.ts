@@ -25,4 +25,3 @@ export async function ensureLitClientsAreInitialized() {
     }
 }
 // Define a store for authSig
-export const authSigStore = writable<Function | null>(null);

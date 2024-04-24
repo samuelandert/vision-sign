@@ -1,7 +1,7 @@
 import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
-import { PKPEthersWallet } from '@lit-protocol/pkp-ethers'; import { pkpWalletStore, meStore, litNodeClientStore, litProviderStore, ensureLitClientsAreInitialized, authSigStore } from '$lib/stores';
+import { PKPEthersWallet } from '@lit-protocol/pkp-ethers'; import { pkpWalletStore, meStore, litNodeClientStore, litProviderStore, ensureLitClientsAreInitialized } from '$lib/stores';
 
-import { get } from 'svelte/store';
+let authSig;
 
 const resourceAbilities = [
     {
@@ -41,7 +41,7 @@ export async function authenticateWithWebAuthn() {
     const pkpPublicKey = pkps[0].publicKey;
     const ethAddress = pkps[0].ethAddress;
 
-    authSigStore.set(async (params: AuthCallbackParams) => {
+    authSig = (async (params: AuthCallbackParams) => {
         const response = await litNodeClient.signSessionKey({
             statement: params.statement,
             authMethods: [authMethod],
@@ -58,15 +58,7 @@ export async function authenticateWithWebAuthn() {
                 chain: 'xdai',
                 expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
                 resourceAbilityRequests: resourceAbilities,
-                authNeededCallback: async (params) => {
-                    // Use get to access the current value of authSigStore
-                    const authSig = get(authSigStore);
-                    if (typeof authSig === 'function') {
-                        return authSig(params);
-                    } else {
-                        throw new Error('authSig is not a function');
-                    }
-                }
+                authNeededCallback: authSig,
             },
         },
         pkpPubKey: pkpPublicKey,
