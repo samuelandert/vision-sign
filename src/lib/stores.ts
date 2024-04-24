@@ -24,3 +24,5 @@ export async function ensureLitClientsAreInitialized() {
         await initializeLitClients();
     }
 }
+// Define a store for authSig
+export const authSigStore = writable<Function | null>(null);
