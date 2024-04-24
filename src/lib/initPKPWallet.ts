@@ -1,52 +1,22 @@
-import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
-import { pkpWalletStore, meStore, litNodeClientStore, litProviderStore, ensureLitClientsAreInitialized, authMethodStore } from '$lib/stores';
-
-let authSig;
+import { pkpWalletStore, litNodeClientStore, ensureLitClientsAreInitialized, authMethodStore, ensureAuthMethodAvailable } from './stores';
 
 const resourceAbilities = [
     {
-        resource: new LitActionResource("*"),
-        ability: LitAbility.PKPSigning,
+        resource: "*",
+        ability: "PKPSigning",
     },
 ];
 
-export async function registerWithWebAuthn(namedPasskey: string) {
-    await ensureLitClientsAreInitialized();
-    let provider;
-    litProviderStore.subscribe(value => { provider = value; });
+export async function initPKPWallet() {
+    await ensureAuthMethodAvailable();
 
-    if (!provider) {
-        throw new Error('Provider is not initialized.');
-    }
-    const options = await provider.register(namedPasskey);
-    const txHash = await provider.verifyAndMintPKPThroughRelayer(options);
-    const response = await provider.relay.pollRequestUntilTerminalState(txHash);
-    meStore.set({ pkpPubKey: response.pkpPublicKey, ethAddress: response.ethAddress });
-}
-
-export async function authenticateWithWebAuthn() {
-    await ensureLitClientsAreInitialized();
-    let provider, litNodeClient;
-    litProviderStore.subscribe(value => { provider = value; });
+    let litNodeClient;
     litNodeClientStore.subscribe(value => { litNodeClient = value; });
 
-    if (!provider) {
-        throw new Error('Provider is not initialized.');
-    }
-    const authMethod = await provider.authenticate();
-    authMethodStore.set(authMethod);
-
-    const pkps = await provider.fetchPKPsThroughRelayer(authMethod);
-    if (pkps.length === 0) {
-        throw new Error('No PKP found for authenticated method.');
-    }
-    const pkpPublicKey = pkps[0].publicKey;
-    const ethAddress = pkps[0].ethAddress;
-
-    authSig = (async (params: AuthCallbackParams) => {
+    let authSig = async (params) => {
         let currentAuthMethod;
-        authMethodStore.subscribe(value => { currentAuthMethod = value; }); // Subscribe to the authMethod store
+        authMethodStore.subscribe(value => { currentAuthMethod = value; });
         const response = await litNodeClient.signSessionKey({
             statement: params.statement,
             authMethods: [currentAuthMethod],
@@ -55,7 +25,7 @@ export async function authenticateWithWebAuthn() {
             chainId: 100
         });
         return response.authSig;
-    });
+    };
 
     const pkpWallet = new PKPEthersWallet({
         authContext: {
@@ -67,13 +37,10 @@ export async function authenticateWithWebAuthn() {
                 authNeededCallback: authSig,
             },
         },
-        pkpPubKey: pkpPublicKey,
         rpc: "https://rpc.gnosischain.com",
     });
 
     await pkpWallet.init();
-    console.log("pkpWallet init successful");
-
+    console.log("PKP Wallet initialized successfully");
     pkpWalletStore.set(pkpWallet);
-    meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress });
 }

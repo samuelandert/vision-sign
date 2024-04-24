@@ -1,15 +1,16 @@
 import { ethers } from 'ethers';
 import { pkpWalletStore } from './stores';
-import { authenticateWithWebAuthn } from './initPKPWallet';
+import { authenticateWithWebAuthn } from './webAuthn';
 
 export async function sendTxWithPKPWallet() {
+
     let pkpWallet;
 
     // Subscribe to pkpWalletStore to check if the wallet is set
     const unsubscribe = pkpWalletStore.subscribe($pkpWalletStore => {
         pkpWallet = $pkpWalletStore;
     });
-    unsubscribe(); // Immediately unsubscribe as we only need the current value
+    unsubscribe();
 
     if (!pkpWallet) {
         console.log('PKP Wallet not set, authenticating...');
@@ -18,7 +19,7 @@ export async function sendTxWithPKPWallet() {
         const unsubscribeAgain = pkpWalletStore.subscribe($pkpWalletStore => {
             pkpWallet = $pkpWalletStore;
         });
-        unsubscribeAgain(); // Clean up the subscription
+        unsubscribeAgain();
         if (!pkpWallet) {
             throw new Error('Failed to set up PKP Wallet.');
         }
