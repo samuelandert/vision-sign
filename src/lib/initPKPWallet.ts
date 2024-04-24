@@ -1,5 +1,5 @@
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
-import { pkpWalletStore, litNodeClientStore, ensureLitClientsAreInitialized, authMethodStore, ensureAuthMethodAvailable } from './stores';
+import { pkpWalletStore, litNodeClientStore, authMethodStore, ensureAuthMethodAvailable } from './stores';
 
 const resourceAbilities = [
     {
@@ -14,7 +14,7 @@ export async function initPKPWallet() {
     let litNodeClient;
     litNodeClientStore.subscribe(value => { litNodeClient = value; });
 
-    let authSig = async (params) => {
+    let authNeededCallback = async (params) => {
         let currentAuthMethod;
         authMethodStore.subscribe(value => { currentAuthMethod = value; });
         const response = await litNodeClient.signSessionKey({
@@ -34,7 +34,7 @@ export async function initPKPWallet() {
                 chain: 'xdai',
                 expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
                 resourceAbilityRequests: resourceAbilities,
-                authNeededCallback: authSig,
+                authNeededCallback,
             },
         },
         rpc: "https://rpc.gnosischain.com",

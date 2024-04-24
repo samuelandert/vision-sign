@@ -3,6 +3,7 @@
 	import { meStore, pkpWalletStore } from '$lib/stores';
 	import { registerWithWebAuthn, authenticateWithWebAuthn } from '$lib/webAuthn';
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
+	import { initPKPWalletConnect } from '$lib/initPKPWalletConnect'; // Import the function
 
 	let isSignedIn = false;
 
@@ -27,6 +28,7 @@
 			console.error('Authentication failed:', error);
 		}
 	}
+
 	async function sendXDai() {
 		try {
 			await sendTxWithPKPWallet();
@@ -43,6 +45,15 @@
 		localStorage.removeItem('lit-session-key');
 		isSignedIn = false;
 	}
+
+	async function connectPKPWallet() {
+		try {
+			await initPKPWalletConnect();
+			console.log('PKP Wallet Connect initialized');
+		} catch (error) {
+			console.error('Failed to initialize PKP Wallet Connect:', error);
+		}
+	}
 </script>
 
 <div class="w-screen h-screen bg-orange-50 grid-container">
@@ -55,6 +66,10 @@
 				<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={sendXDai}
 					>Send 0.01$</button
 				>
+				<button class="px-4 py-2 text-white bg-blue-500 rounded-lg" on:click={connectPKPWallet}
+					>Connect Wallet</button
+				>
+				<!-- New button for connecting PKP Wallet -->
 				<div class="transactions">
 					<Transactions />
 				</div>
