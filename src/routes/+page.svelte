@@ -13,35 +13,35 @@
 		isSignedIn = $me.pkpPubKey && $me.ethAddress;
 	});
 
-	onMount(async () => {
-		pkpWalletConnect = await initPKPWalletConnect();
-		pkpWalletConnect.on('session_proposal', async (proposal) => {
-			console.log('Received session proposal:', proposal);
-			await pkpWalletConnect.approveSessionProposal(proposal);
-			const sessions = Object.values(pkpWalletConnect.getActiveSessions());
-			for (const session of sessions) {
-				const { name, url } = session.peer.metadata;
-				console.log(`Active Session: ${name} (${url})`);
-			}
-		});
-		pkpWalletConnect.on('session_request', async (requestEvent) => {
-			console.log('Received session request:', requestEvent);
-			const { topic, params } = requestEvent;
-			const { request } = params;
-			const requestSession = pkpWalletConnect.session.get(topic);
-			const { name, url } = requestSession.peer.metadata;
+	// onMount(async () => {
+	// 	pkpWalletConnect = await initPKPWalletConnect();
+	// 	pkpWalletConnect.on('session_proposal', async (proposal) => {
+	// 		console.log('Received session proposal:', proposal);
+	// 		await pkpWalletConnect.approveSessionProposal(proposal);
+	// 		const sessions = Object.values(pkpWalletConnect.getActiveSessions());
+	// 		for (const session of sessions) {
+	// 			const { name, url } = session.peer.metadata;
+	// 			console.log(`Active Session: ${name} (${url})`);
+	// 		}
+	// 	});
+	// 	pkpWalletConnect.on('session_request', async (requestEvent) => {
+	// 		console.log('Received session request:', requestEvent);
+	// 		const { topic, params } = requestEvent;
+	// 		const { request } = params;
+	// 		const requestSession = pkpWalletConnect.session.get(topic);
+	// 		const { name, url } = requestSession.peer.metadata;
 
-			const userConfirmation = confirm(
-				`Approve ${request.method} request for session ${name} (${url})?`
-			);
-			if (userConfirmation) {
-				await pkpWalletConnect.approveSessionRequest(requestEvent);
-				console.log(`Request approved. Check the ${name} dapp to confirm.`);
-			} else {
-				console.log(`Request declined.`);
-			}
-		});
-	});
+	// 		const userConfirmation = confirm(
+	// 			`Approve ${request.method} request for session ${name} (${url})?`
+	// 		);
+	// 		if (userConfirmation) {
+	// 			await pkpWalletConnect.approveSessionRequest(requestEvent);
+	// 			console.log(`Request approved. Check the ${name} dapp to confirm.`);
+	// 		} else {
+	// 			console.log(`Request declined.`);
+	// 		}
+	// 	});
+	// });
 
 	async function handleRegister() {
 		try {
@@ -78,12 +78,12 @@
 		isSignedIn = false;
 	}
 
-	async function connectPKPWallet() {
-		const uri = prompt('Please enter the URI to connect:');
-		if (uri) {
-			await pkpWalletConnect.pair({ uri });
-		}
-	}
+	// async function connectPKPWallet() {
+	// 	const uri = prompt('Please enter the URI to connect:');
+	// 	if (uri) {
+	// 		await pkpWalletConnect.pair({ uri });
+	// 	}
+	// }
 </script>
 
 <div class="w-screen h-screen bg-orange-50 grid-container">
@@ -96,10 +96,9 @@
 				<button class="px-4 py-2 text-white bg-green-500 rounded-lg" on:click={sendXDai}
 					>Send 0.01$</button
 				>
-				<button class="px-4 py-2 text-white bg-blue-500 rounded-lg" on:click={connectPKPWallet}
+				<!-- <button class="px-4 py-2 text-white bg-blue-500 rounded-lg" on:click={connectPKPWallet}
 					>Connect Wallet</button
-				>
-				<!-- New button for connecting PKP Wallet -->
+				> -->
 				<div class="transactions">
 					<Transactions />
 				</div>
