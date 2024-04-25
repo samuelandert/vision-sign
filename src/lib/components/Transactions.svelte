@@ -71,7 +71,7 @@
 
 {#if address}
 	<div class="flex flex-col w-full mx-auto">
-		<div class="px-4 py-2 mb-3 bg-white rounded-lg sm:p-5 sm:pb-4 sm:mb-5">
+		<div class="mb-3 bg-white rounded-lg sm:p-5 sm:pb-4 sm:mb-5">
 			ACCOUNT
 			<div class="flex items-center space-x-1 sm:space-x-2">
 				<p class="text-sm sm:text-xl">
@@ -85,11 +85,11 @@
 				</button>
 			</div>
 		</div>
-		<div class="px-4 py-2 mb-3 bg-white rounded-lg sm:p-5 sm:pb-4 sm:mb-5">
+		<div class="mb-3 bg-white rounded-lg sm:p-5 sm:pb-4 sm:mb-5">
 			BALANCE
 			<p class="text-3xl sm:text-5xl">{balance.toFixed(4)} $</p>
 		</div>
-		<div class="px-4 py-2 mb-3 bg-white rounded-lg sm:p-5 sm:pb-4 sm:mb-5">
+		<div class="mb-3 bg-white rounded-lg sm:p-5 sm:pb-4 sm:mb-5">
 			{#if transactions.length > 0}
 				<div class="pb-2 sm:pb-4">TRANSACTIONS</div>
 				<ul class="pl-1 list-disc sm:pl-2">
