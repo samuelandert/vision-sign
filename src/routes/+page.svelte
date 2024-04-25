@@ -64,23 +64,20 @@
 		class="fixed bottom-0 left-0 right-0 flex justify-center mx-auto shadow-md rounded-t-3xl bg-blue-950"
 	>
 		<div class="inline-flex items-center justify-start w-full p-3 px-5 space-x-4">
-			<img src="/logo.svg" alt="Logo" class="h-10 border-2 border-white rounded-full" />
+			<img src="/logo.svg" alt="Logo" class="h-10 border-white rounded-full" />
 			{#if isSignedIn}
-				<button class="px-4 py-2 text-white bg-blue-900 rounded-full" on:click={handleLogout}>
+				<button class="px-4 py-2 text-white rounded-full bg-cyan-600" on:click={handleLogout}>
 					Logout
 				</button>
-				<button class="px-4 py-2 text-white bg-green-500 rounded-full" on:click={sendXDai}>
+				<button class="px-4 py-2 bg-yellow-400 rounded-full text-blue-950" on:click={sendXDai}>
 					Donate 0.01$
 				</button>
 			{:else}
-				<button
-					class="px-4 py-2 bg-yellow-400 rounded-full text-blue-950"
-					on:click={handleRegister}
-				>
-					Register
-				</button>
-				<button class="px-4 py-2 text-white bg-green-500 rounded-full" on:click={handleSignIn}>
+				<button class="px-4 py-2 bg-yellow-400 rounded-full text-blue-950" on:click={handleSignIn}>
 					Sign In
+				</button>
+				<button class="px-4 py-2 text-white rounded-full bg-cyan-600" on:click={handleRegister}>
+					Register
 				</button>
 			{/if}
 		</div>
