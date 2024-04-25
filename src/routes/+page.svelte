@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	// import { onMount } from 'svelte';
 	import Transactions from '$lib/components/Transactions.svelte';
 	import { meStore, pkpWalletStore } from '$lib/stores';
 	import { registerWithWebAuthn, authenticateWithWebAuthn } from '$lib/webAuthn';
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
-	import { initPKPWalletConnect } from '$lib/initPKPWalletConnect';
+	// import { initPKPWalletConnect } from '$lib/initPKPWalletConnect';
 
 	let isSignedIn = false;
-	let pkpWalletConnect;
+	// let pkpWalletConnect;
 
 	meStore.subscribe(($me) => {
 		isSignedIn = $me.pkpPubKey && $me.ethAddress;
@@ -45,7 +45,7 @@
 
 	async function handleRegister() {
 		try {
-			await registerWithWebAuthn('VisionID');
+			await registerWithWebAuthn('Hominio');
 			isSignedIn = true;
 		} catch (error) {
 			console.error('Registration failed:', error);
