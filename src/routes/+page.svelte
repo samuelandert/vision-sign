@@ -29,9 +29,9 @@
 		}
 	}
 
-	async function sendXDai() {
+	async function donateXDai() {
 		try {
-			await sendTxWithPKPWallet();
+			await sendTxWithPKPWallet('0.01', '0xD2BEe43813d976104A3CE1251374AbE7a93A99d2');
 			console.log('Transaction successful');
 		} catch (error) {
 			console.error('Transaction failed:', error);
@@ -96,7 +96,7 @@
 					</button>
 					<button
 						class="px-3 py-2 text-sm bg-yellow-400 rounded-full text-blue-950"
-						on:click={sendXDai}
+						on:click={donateXDai}
 					>
 						Donate 0.01$
 					</button>
