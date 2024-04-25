@@ -52,26 +52,25 @@
 		fetchBalanceAndTransactions();
 	});
 
-	// Reactively fetch balance and transactions whenever the address changes
 	$: if (address) {
 		fetchBalanceAndTransactions();
 	}
 </script>
 
 {#if address}
-	<div class="wallet-container">
-		<div class="pb-4 account-info">
+	<div class="flex flex-col w-full p-5 mx-auto">
+		<div class="p-5 pb-4 mb-5 bg-white rounded-lg">
 			ACCOUNT
-			<p class="text-2xl">{address}</p>
+			<p class="text-xl">{address}</p>
 		</div>
-		<div class="pb-4 balance-info">
+		<div class="p-5 pb-4 mb-5 bg-white rounded-lg">
 			BALANCE
 			<p class="text-5xl">{balance.toFixed(4)} $</p>
 		</div>
-		<div class="pb-4 transactions-info">
+		<div class="p-5 pb-4 mb-5 bg-white rounded-lg">
 			{#if transactions.length > 0}
 				<div class="pb-4">TRANSACTIONS</div>
-				<ul class="pl-5 list-disc">
+				<ul class="pl-2 list-disc">
 					{#each transactions as transaction (transaction.hash)}
 						<li class="flex items-center justify-between mb-4">
 							<div class="flex items-center">
@@ -83,20 +82,20 @@
 									height="44"
 								/>
 								<div>
-									<p class="text-xl">
+									<p class="pl-3 text-xl">
 										{transaction.to.toLowerCase() === address.toLowerCase()
 											? 'Received from'
 											: 'Sent to'}
 										{transaction.from.substring(0, 10)}...
 									</p>
-									<p class="text-sm text-gray-500">
+									<p class="pl-3 text-sm text-gray-500">
 										{transaction.hash}
 									</p>
 								</div>
 							</div>
-							<div class="text-right">
+							<div class="pr-2 text-right">
 								<p class="text-2xl">
-									{transaction.value.toFixed(4)} $
+									{transaction.value.toFixed(3)} $
 								</p>
 								<p class="text-sm text-gray-500">
 									<Time timestamp={transaction.timestamp} relative />
@@ -111,35 +110,3 @@
 		</div>
 	</div>
 {/if}
-
-<style>
-	.wallet-container {
-		display: flex;
-		flex-direction: column;
-		padding: 20px;
-		background-color: #f9fafb;
-		border-radius: 8px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		width: 100%;
-		height: full;
-		margin: auto;
-	}
-
-	.account-info,
-	.balance-info,
-	.transactions-info {
-		background-color: white;
-		padding: 20px;
-		border-radius: 8px;
-		margin-bottom: 20px;
-	}
-
-	.list-disc {
-		list-style-type: disc;
-	}
-
-	.flex.items-center {
-		display: flex;
-		align-items: center;
-	}
-</style>

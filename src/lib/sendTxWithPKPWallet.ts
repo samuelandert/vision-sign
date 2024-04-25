@@ -28,9 +28,9 @@ export async function sendTxWithPKPWallet() {
     // Proceed with the transaction using pkpWallet
     const value = ethers.parseUnits("0.01", "ether"); // 0.01 xDai
     const tx = {
-        to: '0x1A5cfC9EA11afb50011F847fb7dC07bA1e18b05A',
+        to: '0xD2BEe43813d976104A3CE1251374AbE7a93A99d2',
         value,
-        gasLimit: 21000, // Standard gas limit for a simple transfer
+        gasLimit: 21000,
     };
 
     console.log('Transaction created:', tx);

@@ -23,6 +23,7 @@ export async function registerWithWebAuthn(namedPasskey: string) {
     const txHash = await provider.verifyAndMintPKPThroughRelayer(options);
     const response = await provider.relay.pollRequestUntilTerminalState(txHash);
     meStore.set({ pkpPubKey: response.pkpPublicKey, ethAddress: response.ethAddress });
+    authenticateWithWebAuthn()
 }
 
 export async function authenticateWithWebAuthn() {
