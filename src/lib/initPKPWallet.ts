@@ -1,10 +1,11 @@
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 import { pkpWalletStore, litNodeClientStore, authMethodStore, ensureAuthMethodAvailable } from './stores';
+import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
 
 const resourceAbilities = [
     {
-        resource: "*",
-        ability: "PKPSigning",
+        resource: new LitActionResource("*"),
+        ability: LitAbility.PKPSigning,
     },
 ];
 

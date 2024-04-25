@@ -1,14 +1,46 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Transactions from '$lib/components/Transactions.svelte';
 	import { meStore, pkpWalletStore } from '$lib/stores';
 	import { registerWithWebAuthn, authenticateWithWebAuthn } from '$lib/webAuthn';
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
-	import { initPKPWalletConnect } from '$lib/initPKPWalletConnect'; // Import the function
+	import { initPKPWalletConnect } from '$lib/initPKPWalletConnect';
 
 	let isSignedIn = false;
+	let pkpWalletConnect;
 
 	meStore.subscribe(($me) => {
 		isSignedIn = $me.pkpPubKey && $me.ethAddress;
+	});
+
+	onMount(async () => {
+		pkpWalletConnect = await initPKPWalletConnect();
+		pkpWalletConnect.on('session_proposal', async (proposal) => {
+			console.log('Received session proposal:', proposal);
+			await pkpWalletConnect.approveSessionProposal(proposal);
+			const sessions = Object.values(pkpWalletConnect.getActiveSessions());
+			for (const session of sessions) {
+				const { name, url } = session.peer.metadata;
+				console.log(`Active Session: ${name} (${url})`);
+			}
+		});
+		pkpWalletConnect.on('session_request', async (requestEvent) => {
+			console.log('Received session request:', requestEvent);
+			const { topic, params } = requestEvent;
+			const { request } = params;
+			const requestSession = pkpWalletConnect.session.get(topic);
+			const { name, url } = requestSession.peer.metadata;
+
+			const userConfirmation = confirm(
+				`Approve ${request.method} request for session ${name} (${url})?`
+			);
+			if (userConfirmation) {
+				await pkpWalletConnect.approveSessionRequest(requestEvent);
+				console.log(`Request approved. Check the ${name} dapp to confirm.`);
+			} else {
+				console.log(`Request declined.`);
+			}
+		});
 	});
 
 	async function handleRegister() {
@@ -47,11 +79,9 @@
 	}
 
 	async function connectPKPWallet() {
-		try {
-			await initPKPWalletConnect();
-			console.log('PKP Wallet Connect initialized');
-		} catch (error) {
-			console.error('Failed to initialize PKP Wallet Connect:', error);
+		const uri = prompt('Please enter the URI to connect:');
+		if (uri) {
+			await pkpWalletConnect.pair({ uri });
 		}
 	}
 </script>
