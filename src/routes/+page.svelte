@@ -70,7 +70,7 @@
 		{/if}
 	</div>
 	<div class="fixed bottom-0 left-0 right-0 flex justify-center mx-auto shadow-md">
-		<div class="w-full max-w-6xl pb-1 bg-blue-950 rounded-t-3xl">
+		<div class="w-full max-w-6xl pb-1.5 bg-blue-950 rounded-t-3xl sm:p-0.5">
 			<div class="inline-flex items-center justify-start w-full p-3 px-5 space-x-4">
 				<img src="/logo.svg" alt="Logo" class="h-10 border-white rounded-full" />
 				<button class="text-white rounded-full bg-blue-950" on:click={refreshPage}>
