@@ -46,15 +46,17 @@
 	}
 </script>
 
-<div class="flex flex-col w-screen h-screen bg-gray-100">
-	<div class="flex-grow h-full p-4 overflow-auto">
+<div class="flex flex-col w-screen h-screen">
+	<div class="flex-grow h-full overflow-auto">
 		{#if isSignedIn}
-			<div class="transactions">
+			<div class="p-4">
 				<Transactions />
 			</div>
 		{:else}
-			<div class="flex items-center justify-center flex-grow h-full">
-				<img src="/logo.svg" alt="Logo" class="w-60 h-60" />
+			<div class="flex items-center justify-center flex-grow w-full h-full background-image">
+				<p class="px-4 text-2xl font-bold text-center text-white uppercase break-words sm:px-0">
+					your true life starts now
+				</p>
 			</div>
 		{/if}
 	</div>
@@ -84,3 +86,11 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.background-image {
+		background-image: url('/freedom.jpeg');
+		background-size: cover;
+		background-position: center;
+	}
+</style>
