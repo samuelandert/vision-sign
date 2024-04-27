@@ -32,7 +32,7 @@ export async function initPKPWallet() {
         authContext: {
             client: litNodeClient,
             getSessionSigsProps: {
-                chain: '100',
+                chain: 'xdai',
                 expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
                 resourceAbilityRequests: resourceAbilities,
                 authNeededCallback,

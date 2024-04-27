@@ -14,8 +14,8 @@ const config = {
     projectId: "0f53c89a9e444fed11155af787ce0f40",
     metadata: {
         name: "Hominio",
-        description: "My Wallet",
-        url: "https://localhost:5173",
+        description: "Hominio Wallet",
+        url: "https://homin.io",
     },
 };
 
@@ -51,18 +51,18 @@ export async function initPKPWalletConnect() {
         authContext: {
             client: litNodeClient,
             getSessionSigsProps: {
-                chain: '1',
+                chain: 'ethereum',
                 expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
                 resourceAbilityRequests: resourceAbilities,
                 authNeededCallback
             },
         },
-        rpc: "https://rpc.gnosischain.com",
+        rpc: "https://ethereum-rpc.publicnode.com",
         pkpPubKey: pkpPubKey,
     });
 
     await pkpClient.connect();
-    console.log("PKPClient connected");
+    console.log("PKPClient connected", pkpClient);
 
     const pkpWalletConnect = new PKPWalletConnect();
     await pkpWalletConnect.initWalletConnect(config);
