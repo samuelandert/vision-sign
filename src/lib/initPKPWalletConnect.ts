@@ -13,10 +13,9 @@ const resourceAbilities = [
 const config = {
     projectId: "0f53c89a9e444fed11155af787ce0f40",
     metadata: {
-        name: "Homin.io",
+        name: "Hominio",
         description: "My Wallet",
         url: "https://localhost:5173",
-        icons: ["/favicon.png"],
     },
 };
 
@@ -43,7 +42,7 @@ export async function initPKPWalletConnect() {
             authMethods: [currentAuthMethod],
             expiration: params.expiration,
             resources: params.resources,
-            chainId: 137,
+            chainId: 1,
         });
         return response.authSig;
     };
@@ -52,7 +51,7 @@ export async function initPKPWalletConnect() {
         authContext: {
             client: litNodeClient,
             getSessionSigsProps: {
-                chain: '137',
+                chain: '1',
                 expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
                 resourceAbilityRequests: resourceAbilities,
                 authNeededCallback

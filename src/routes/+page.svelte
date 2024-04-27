@@ -4,11 +4,28 @@
 	import { registerWithWebAuthn, authenticateWithWebAuthn } from '$lib/webAuthn';
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
 	import Icon from '@iconify/svelte';
+	import { initPKPWalletConnect } from '$lib/initPKPWalletConnect';
+	import { onMount } from 'svelte';
 
+	let pkpWalletConnect;
 	let isSignedIn = false;
 
 	meStore.subscribe(($me) => {
 		isSignedIn = $me.pkpPubKey && $me.ethAddress;
+	});
+
+	onMount(async () => {
+		pkpWalletConnect = await initPKPWalletConnect();
+		pkpWalletConnect.on('session_proposal', async (proposal) => {
+			const userResponse = confirm(`Accept session from ${proposal.name}?`);
+			if (userResponse) {
+				await pkpWalletConnect.approveSessionProposal(proposal);
+				console.log('Session approved');
+			} else {
+				await pkpWalletConnect.rejectSessionProposal(proposal);
+				console.log('Session rejected');
+			}
+		});
 	});
 
 	async function handleRegister() {
@@ -62,6 +79,13 @@
 	function refreshPage() {
 		window.location.reload();
 	}
+
+	async function connectPKPWallet() {
+		const uri = prompt('Please enter the URI to connect:');
+		if (uri) {
+			await pkpWalletConnect.pair({ uri });
+		}
+	}
 </script>
 
 <div class="flex flex-col w-screen h-screen">
@@ -94,6 +118,9 @@
 					<button class="text-white rounded-full bg-blue-950" on:click={sendCustomXDai}>
 						<Icon icon="solar:card-send-outline" class="w-10 h-10" />
 					</button>
+					<button class="px-4 py-2 text-white bg-blue-500 rounded-lg" on:click={connectPKPWallet}
+						>Connect Wallet</button
+					>
 					<button
 						class="px-3 py-2 text-sm bg-yellow-400 rounded-full text-blue-950"
 						on:click={donateXDai}
