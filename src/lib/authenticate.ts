@@ -1,35 +1,13 @@
-import { writable } from 'svelte/store';
-import { persistBrowserSession } from '@macfja/svelte-persistent-store';
-import {
-    meStore,
-    litNodeClientStore,
-    litProviderStore,
-    ensureLitClientsAreInitialized,
-    log
-} from './stores';
+// authenticate.ts 
+import { authMethodSession, log, meStore } from './stores';
 
-export let authMethodSession = persistBrowserSession(writable(null), 'authMethod');
-
-export async function initializeAuth() {
-    await ensureLitClientsAreInitialized();
-
-    let provider, litNodeClient;
-
-    litProviderStore.subscribe((value) => {
-        provider = value;
-    });
-    litNodeClientStore.subscribe((value) => {
-        litNodeClient = value;
-    });
-
+export async function authenticate(provider) {
     if (!provider) {
         log('Provider is not initialized.');
         throw new Error('Provider is not initialized.');
     }
 
-    authMethodSession.subscribe((value) => {
-        authMethod = value;
-    });
+    let authMethod = await authMethodSession.subscribe(value => value);
 
     if (!authMethod) {
         log('No authMethod in session, authenticating...');
@@ -47,4 +25,6 @@ export async function initializeAuth() {
     } else {
         log('Using existing authMethod from session');
     }
+
+    return authMethod;
 }

@@ -1,11 +1,12 @@
 import { writable, get } from 'svelte/store';
-import { persist, createCookieStorage } from "@macfja/svelte-persistent-store";
+import { persist, createCookieStorage, persistBrowserSession } from "@macfja/svelte-persistent-store";
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { initializeLitClients } from './appInit';
 import { authenticateWithWebAuthn } from './webAuthn';
 
 interface MeObject {
+    pkpTokenId: string;
     pkpPubKey: string;
     ethAddress: string;
 }
@@ -17,6 +18,7 @@ export const litNodeClientStore = writable<LitNodeClient | null>(null);
 export const litProviderStore = writable<any | null>(null);
 export const connectionStatusStore = writable<string>('Disconnected');
 export const authMethodStore = writable<any | null>(null);
+export const authMethodSession = persistBrowserSession(writable(null), 'authMethod');
 
 export const logMessages = writable([]);
 

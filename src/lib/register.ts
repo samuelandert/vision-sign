@@ -15,11 +15,11 @@ export async function registerWithWebAuthn(namedPasskey: string) {
         const response = await provider.relay.pollRequestUntilTerminalState(txHash);
         meStore.set({ pkpPubKey: response.pkpPublicKey, pkpTokenId: response.pkpTokenId });
 
-        log(`Public Key: ${response.pkpPublicKey}`, new URL(import.meta.url).pathname.replace(/\/[^\/]*$/, '') + "/" + import.meta.url);
+        log(`Public Key: ${response.pkpPublicKey}`);
 
-        goto('/test');
+        goto('/auth');
     } catch (error) {
-        log(`Error: ${error.message}`, new URL(import.meta.url).pathname.replace(/\/[^\/]*$/, '') + "/" + import.meta.url);
+        log(`Error: ${error.message}`);
         throw error;
     }
 }

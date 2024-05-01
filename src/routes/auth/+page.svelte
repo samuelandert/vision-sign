@@ -1,16 +1,14 @@
 <script>
 	import { onMount } from 'svelte';
-	import { persistBrowserSession } from '@macfja/svelte-persistent-store';
-	import { writable } from 'svelte/store';
 	import {
 		meStore,
 		litNodeClientStore,
 		litProviderStore,
 		ensureLitClientsAreInitialized,
-		log
+		log,
+		authMethodSession
 	} from '$lib/stores';
 
-	let authMethodSession = persistBrowserSession(writable(null), 'authMethod');
 	let authMethod;
 	let provider, litNodeClient;
 
