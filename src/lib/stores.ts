@@ -18,6 +18,24 @@ export const litProviderStore = writable<any | null>(null);
 export const connectionStatusStore = writable<string>('Disconnected');
 export const authMethodStore = writable<any | null>(null);
 
+// Log store and function
+export const logMessages = writable([]);
+
+export function addLog(message: string, origin: string) {
+    const pathParts = origin.split('/'); // Split the path into parts
+    const filename = pathParts.pop(); // Extracts only the filename from the path
+    const folder = pathParts.pop(); // Extracts the last directory name in the path
+    const cleanFilename = filename?.split('?')[0]; // Removes any query string from the filename
+    const date = new Date().toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 }); // Gets the time part with milliseconds
+
+    const entry = {
+        message,
+        date, // Now includes time with milliseconds
+        origin: folder ? `${folder}/${cleanFilename}` : cleanFilename // Includes the folder and filename
+    };
+    logMessages.update(n => [...n, entry]);
+}
+
 export async function ensureLitClientsAreInitialized() {
     const litNodeClient = get(litNodeClientStore);
     const litProvider = get(litProviderStore);

@@ -11,6 +11,7 @@ const resourceAbilities = [
 
 export async function initPKPWallet() {
     await ensureAuthMethodAvailable();
+    // const sessionKeyPair = litNodeClient.getSessionKey();
 
     let litNodeClient;
     litNodeClientStore.subscribe(value => { litNodeClient = value; });
@@ -19,6 +20,7 @@ export async function initPKPWallet() {
         let currentAuthMethod;
         authMethodStore.subscribe(value => { currentAuthMethod = value; });
         const response = await litNodeClient.signSessionKey({
+
             statement: params.statement,
             authMethods: [currentAuthMethod],
             expiration: params.expiration,
