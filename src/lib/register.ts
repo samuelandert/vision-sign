@@ -1,4 +1,4 @@
-import { ensureLitClientsAreInitialized, litProviderStore, meStore, addLog } from '$lib/stores';
+import { ensureLitClientsAreInitialized, litProviderStore, meStore, log } from '$lib/stores';
 import { goto } from '$app/navigation';
 
 export async function registerWithWebAuthn(namedPasskey: string) {
@@ -15,11 +15,11 @@ export async function registerWithWebAuthn(namedPasskey: string) {
         const response = await provider.relay.pollRequestUntilTerminalState(txHash);
         meStore.set({ pkpPubKey: response.pkpPublicKey, pkpTokenId: response.pkpTokenId });
 
-        addLog(`Public Key: ${response.pkpPublicKey}`, new URL(import.meta.url).pathname.replace(/\/[^\/]*$/, '') + "/" + import.meta.url);
+        log(`Public Key: ${response.pkpPublicKey}`, new URL(import.meta.url).pathname.replace(/\/[^\/]*$/, '') + "/" + import.meta.url);
 
         goto('/test');
     } catch (error) {
-        addLog(`Error: ${error.message}`, new URL(import.meta.url).pathname.replace(/\/[^\/]*$/, '') + "/" + import.meta.url);
+        log(`Error: ${error.message}`, new URL(import.meta.url).pathname.replace(/\/[^\/]*$/, '') + "/" + import.meta.url);
         throw error;
     }
 }

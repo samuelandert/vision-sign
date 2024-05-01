@@ -7,7 +7,7 @@
 		litNodeClientStore,
 		litProviderStore,
 		ensureLitClientsAreInitialized,
-		addLog
+		log
 	} from '$lib/stores';
 
 	let authMethodSession = persistBrowserSession(writable(null), 'authMethod');
@@ -25,7 +25,7 @@
 		});
 
 		if (!provider) {
-			addLog('Provider is not initialized.', import.meta.url);
+			log('Provider is not initialized.');
 			throw new Error('Provider is not initialized.');
 		}
 		authMethodSession.subscribe((value) => {
@@ -33,12 +33,12 @@
 		});
 
 		if (!authMethod) {
-			addLog('No authMethod in session, authenticating...', import.meta.url);
+			log('No authMethod in session, authenticating...');
 			authMethod = await provider.authenticate();
 			authMethodSession.set(authMethod);
 			const pkps = await provider.fetchPKPsThroughRelayer(authMethod);
 			if (pkps.length === 0) {
-				addLog('No PKP found for authenticated method.', import.meta.url);
+				log('No PKP found for authenticated method.');
 				throw new Error('No PKP found for authenticated method.');
 			}
 			const pkpPublicKey = pkps[0].publicKey;
@@ -46,7 +46,15 @@
 
 			meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress });
 		} else {
-			addLog('Using existing authMethod from session', import.meta.url);
+			log('Using existing authMethod from session');
 		}
 	});
 </script>
+
+{#if $meStore.pkpPubKey && authMethod}
+	<p>Public Key: {$meStore.pkpPubKey}</p>
+{:else if !authMethod}
+	<p>Authenticating...</p>
+{:else if !$meStore.pkpPubKey}
+	<p>Invite only...</p>
+{/if}

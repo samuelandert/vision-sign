@@ -18,10 +18,13 @@ export const litProviderStore = writable<any | null>(null);
 export const connectionStatusStore = writable<string>('Disconnected');
 export const authMethodStore = writable<any | null>(null);
 
-// Log store and function
 export const logMessages = writable([]);
 
-export function addLog(message: string, origin: string) {
+export function log(message: string) {
+    const error = new Error();
+    const stackLine = error.stack?.split("\n")[2]; // Get the third line of the stack trace
+    const origin = stackLine?.match(/(http.*):/)?.[1] || 'unknown'; // Extract URL
+
     const pathParts = origin.split('/'); // Split the path into parts
     const filename = pathParts.pop(); // Extracts only the filename from the path
     const folder = pathParts.pop(); // Extracts the last directory name in the path

@@ -1,12 +1,8 @@
 <script lang="ts">
 	import { registerWithWebAuthn } from '$lib/register';
-	import { addLog } from '$lib/stores';
+	import { log } from '$lib/stores'; // Updated import
 
 	let namedPasskey = 'Hominio';
-
-	function log(message: string) {
-		addLog(message, import.meta.url);
-	}
 
 	async function handleRegister() {
 		if (namedPasskey.trim() === '') {
