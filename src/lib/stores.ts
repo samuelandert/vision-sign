@@ -3,12 +3,12 @@ import { persist, createCookieStorage, persistBrowserSession } from "@macfja/sve
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { initializeLitClients } from './appInit';
-import { authenticateWithWebAuthn } from './webAuthn';
 
 interface MeObject {
-    pkpTokenId: string;
+    pkpTokenId?: string;
     pkpPubKey: string;
     ethAddress: string;
+    isLoggedIn: boolean;
 }
 
 export const pkpWalletStore = writable<PKPEthersWallet | null>(null);
@@ -16,8 +16,6 @@ const meStoreInitial = writable<MeObject>({ pkpPubKey: '', ethAddress: '' });
 export const meStore = persist(meStoreInitial, createCookieStorage(), "me");
 export const litNodeClientStore = writable<LitNodeClient | null>(null);
 export const litProviderStore = writable<any | null>(null);
-export const connectionStatusStore = writable<string>('Disconnected');
-export const authMethodStore = writable<any | null>(null);
 export const authMethodSession = persistBrowserSession(writable(null), 'authMethod');
 
 export const logMessages = writable([]);
@@ -35,7 +33,7 @@ export function log(message: string) {
 
     const entry = {
         message,
-        date, // Now includes time with milliseconds
+        date,
         origin: folder ? `${folder}/${cleanFilename}` : cleanFilename // Includes the folder and filename
     };
     logMessages.update(n => [...n, entry]);
@@ -46,12 +44,5 @@ export async function ensureLitClientsAreInitialized() {
     const litProvider = get(litProviderStore);
     if (!litNodeClient || !litProvider) {
         await initializeLitClients();
-    }
-}
-
-export async function ensureAuthMethodAvailable() {
-    const authMethod = get(authMethodStore);
-    if (!authMethod) {
-        await authenticateWithWebAuthn();
     }
 }

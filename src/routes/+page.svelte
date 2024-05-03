@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Transactions from '$lib/components/Transactions.svelte';
 	import { meStore, pkpWalletStore } from '$lib/stores';
-	import { registerWithWebAuthn, authenticateWithWebAuthn } from '$lib/webAuthn';
 	import { sendTxWithPKPWallet } from '$lib/sendTxWithPKPWallet';
 	import Icon from '@iconify/svelte';
 	// import { initPKPWalletConnect } from '$lib/initPKPWalletConnect';

@@ -43,8 +43,8 @@ export async function initializeAuthentication() {
 
         const pkpPublicKey = pkps[0].publicKey;
         const ethAddress = pkps[0].ethAddress;
-        meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress });
-        log('User store updated with new PKP and Ethereum address.');
+        meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress, isLoggedIn: true }); // Set isLoggedIn to true
+        log('User store updated with new PKP, Ethereum address, and login status.');
 
         log('Initializing PKP Wallet...');
         await initPKPWallet();

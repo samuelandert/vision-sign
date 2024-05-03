@@ -1,4 +1,4 @@
-import { litNodeClientStore, litProviderStore, connectionStatusStore } from './stores';
+import { litNodeClientStore, litProviderStore } from './stores';
 import { ProviderType } from '@lit-protocol/constants';
 import { LitAuthClient } from '@lit-protocol/lit-auth-client';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
@@ -11,9 +11,7 @@ export async function initializeLitClients() {
     try {
         await litNodeClient.connect();
         litNodeClientStore.set(litNodeClient);
-        connectionStatusStore.set('Lit Node Client Connected');
     } catch (error) {
-        connectionStatusStore.set('Failed to connect Lit Node Client');
         console.error(error);
     }
 
@@ -27,9 +25,7 @@ export async function initializeLitClients() {
     try {
         const provider = await litAuthClient.initProvider(ProviderType.WebAuthn);
         litProviderStore.set(provider);
-        connectionStatusStore.set('Lit Provider Initialized');
     } catch (error) {
-        connectionStatusStore.set('Failed to initialize Lit Provider');
         console.error(error);
     }
 }
