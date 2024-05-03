@@ -1,51 +1,20 @@
 <script>
 	import { onMount } from 'svelte';
-	import {
-		meStore,
-		litNodeClientStore,
-		litProviderStore,
-		ensureLitClientsAreInitialized,
-		log,
-		authMethodSession
-	} from '$lib/stores';
+	import { meStore, authMethodSession } from '$lib/stores';
+	import { initializeAuthentication } from '$lib/authenticate';
 
 	let authMethod;
-	let provider, litNodeClient;
 
 	onMount(async () => {
-		await ensureLitClientsAreInitialized();
-
-		litProviderStore.subscribe((value) => {
-			provider = value;
-		});
-		litNodeClientStore.subscribe((value) => {
-			litNodeClient = value;
-		});
-
-		if (!provider) {
-			log('Provider is not initialized.');
-			throw new Error('Provider is not initialized.');
+		try {
+			await initializeAuthentication();
+		} catch (error) {
+			console.error('Authentication initialization failed:', error);
 		}
+
 		authMethodSession.subscribe((value) => {
 			authMethod = value;
 		});
-
-		if (!authMethod) {
-			log('No authMethod in session, authenticating...');
-			authMethod = await provider.authenticate();
-			authMethodSession.set(authMethod);
-			const pkps = await provider.fetchPKPsThroughRelayer(authMethod);
-			if (pkps.length === 0) {
-				log('No PKP found for authenticated method.');
-				throw new Error('No PKP found for authenticated method.');
-			}
-			const pkpPublicKey = pkps[0].publicKey;
-			const ethAddress = pkps[0].ethAddress;
-
-			meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress });
-		} else {
-			log('Using existing authMethod from session');
-		}
 	});
 </script>
 
@@ -54,5 +23,5 @@
 {:else if !authMethod}
 	<p>Authenticating...</p>
 {:else if !$meStore.pkpPubKey}
-	<p>Invite only...</p>
+	<p>Invite only..., please get an invite link</p>
 {/if}

@@ -1,14 +1,25 @@
-// authenticate.ts 
-import { authMethodSession, log, meStore } from './stores';
+import { get, writable } from 'svelte/store';
+import {
+    meStore,
+    litNodeClientStore,
+    litProviderStore,
+    ensureLitClientsAreInitialized,
+    log,
+    authMethodSession
+} from './stores';
 
-export async function authenticate(provider) {
+export async function initializeAuthentication() {
+    await ensureLitClientsAreInitialized();
+
+    let provider = get(litProviderStore);
+    let litNodeClient = get(litNodeClientStore);
+
     if (!provider) {
         log('Provider is not initialized.');
         throw new Error('Provider is not initialized.');
     }
 
-    let authMethod = await authMethodSession.subscribe(value => value);
-
+    let authMethod = get(authMethodSession);
     if (!authMethod) {
         log('No authMethod in session, authenticating...');
         authMethod = await provider.authenticate();
@@ -25,6 +36,4 @@ export async function authenticate(provider) {
     } else {
         log('Using existing authMethod from session');
     }
-
-    return authMethod;
 }
