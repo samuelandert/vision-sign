@@ -17,7 +17,7 @@ export async function registerWithWebAuthn(namedPasskey: string) {
 
         log(`Public Key: ${response.pkpPublicKey}`);
 
-        goto('/auth');
+        goto('/');
     } catch (error) {
         log(`Error: ${error.message}`);
         throw error;

@@ -50,6 +50,7 @@ export async function initializeAuthentication() {
         await initPKPWallet();
         log('PKP Wallet initialization complete.');
     } else {
+        await initPKPWallet();
         log('Using existing authMethod from session.');
     }
 }

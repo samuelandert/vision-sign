@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { registerWithWebAuthn } from '$lib/register';
-	import { log } from '$lib/stores'; // Updated import
+	import { log } from '$lib/stores';
 
 	let namedPasskey = 'Hominio';
 
