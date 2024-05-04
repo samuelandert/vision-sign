@@ -1,7 +1,7 @@
 import { meStore, authMethodSession } from './stores';
 import { sendTxWithPKPWallet } from './sendTxWithPKPWallet';
 import * as LitProtocol from '@lit-protocol/lit-node-client';
-import { initializeAuthentication } from './authenticate';
+import { authenticate } from './authenticate';
 
 export async function donateXDai() {
     try {
@@ -39,7 +39,7 @@ export async function handleLogout() {
 
 export async function handleLogin() {
     try {
-        await initializeAuthentication();
+        await authenticate();
     } catch (error) {
         console.error('Login failed:', error);
     }

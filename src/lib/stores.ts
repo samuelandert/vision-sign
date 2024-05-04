@@ -5,7 +5,7 @@ import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { initializeLitClients } from './appInit';
 
 interface MeObject {
-    pkpTokenId?: string;
+    pkpTokenId: string;
     pkpPubKey: string;
     ethAddress: string;
     isLoggedIn: boolean;

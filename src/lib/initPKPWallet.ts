@@ -1,6 +1,7 @@
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 import { pkpWalletStore, litNodeClientStore, authMethodSession, meStore, log } from './stores';
 import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
+import { get } from 'svelte/store';
 
 const resourceAbilities = [
     {
@@ -12,56 +13,39 @@ const resourceAbilities = [
 export async function initPKPWallet() {
     log('Starting PKP Wallet initialization...');
 
-    let me;
-    meStore.subscribe(value => {
-        me = value;
-        log(`User data loaded: ${JSON.stringify(me)}`);
-    });
+    const me = get(meStore)
+    const authMethod = get(authMethodSession);
 
-    let litNodeClient;
-    litNodeClientStore.subscribe(value => {
-        litNodeClient = value;
-        log('LitNode client loaded.');
-    });
+    if (!authMethod) {
+        throw new Error("Authentication method is not set");
+    }
+    const litNodeClient = get(litNodeClientStore);
 
     if (!litNodeClient) {
-        log('Error: LitNode client is not available.');
-        throw new Error('LitNode client is not available.');
+        throw new Error("LitNodeClient is not initialized");
     }
-
-    const sessionKeyPair = litNodeClient.getSessionKey();
-    if (!sessionKeyPair) {
-        log('Error: Session key pair is missing.');
-        throw new Error('Session key pair is missing.');
-    }
+    const nonce = litNodeClient.getLatestBlockhash();
 
     let authNeededCallback = async (params) => {
-        let currentAuthMethod;
-        authMethodSession.subscribe(value => {
-            currentAuthMethod = value;
-            log(`Current authentication method: ${currentAuthMethod}`);
-        });
-
-        log(`Signing session key with statement: ${params.statement}`);
-        const response = await litNodeClient.signSessionKey({
-            sessionKey: sessionKeyPair,
-            statement: params.statement,
-            authMethods: [currentAuthMethod],
-            expiration: params.expiration,
-            resources: params.resources,
-            chainId: 100
-        });
-        log('Session key signed successfully.');
-        return response.authSig;
+        console.log("authNeededCallback params:", params);
+        try {
+            const response = await litNodeClient.signSessionKey({
+                authMethods: [authMethod],
+                expiration: params.expiration,
+                nonce,
+                chainId: 100
+            });
+            console.log('Session key signed successfully:', response.authSig);
+            return response.authSig;
+        } catch (error) {
+            console.error('Error in authNeededCallback:', error);
+            throw error;
+        }
     };
-
-    if (!me || !me.pkpPubKey) {
-        log('Error: User public key is missing.');
-        throw new Error('User public key is missing.');
-    }
 
     const pkpWallet = new PKPEthersWallet({
         authContext: {
+            authMethods: [authMethod],
             client: litNodeClient,
             getSessionSigsProps: {
                 chain: 'xdai',
@@ -71,7 +55,6 @@ export async function initPKPWallet() {
             },
         },
         pkpPubKey: me.pkpPubKey,
-        rpc: "https://rpc.gnosischain.com",
     });
 
     try {

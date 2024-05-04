@@ -1,15 +1,15 @@
 <script>
 	import { onMount } from 'svelte';
 	import { meStore, authMethodSession } from '$lib/stores';
-	import { initializeAuthentication } from '$lib/authenticate';
-	import * as LitProtocol from '@lit-protocol/lit-node-client';
+	import { authenticate } from '$lib/authenticate';
 	import Transactions from '$lib/components/Transactions.svelte';
+	import Icon from '@iconify/svelte';
 
 	let authMethod;
 
 	onMount(async () => {
 		try {
-			await initializeAuthentication();
+			await authenticate();
 		} catch (error) {
 			console.error('Authentication initialization failed:', error);
 		}
@@ -17,25 +17,6 @@
 			authMethod = value;
 		});
 	});
-
-	async function handleLogout() {
-		try {
-			await LitProtocol.disconnectWeb3();
-			localStorage.removeItem('lit-session-key');
-			authMethodSession.set(null);
-			meStore.update((current) => ({ ...current, isLoggedIn: false }));
-			console.log('Logged out successfully');
-		} catch (error) {
-			console.error('Logout failed:', error);
-		}
-	}
-	async function handleLogin() {
-		try {
-			await initializeAuthentication();
-		} catch (error) {
-			console.error('Login failed:', error);
-		}
-	}
 </script>
 
 <div class="flex flex-col w-screen h-screen">
@@ -47,7 +28,10 @@
 				</div>
 			</div>
 		{:else if $meStore.isLoggedIn && !authMethod}
-			<p>Authenticating...</p>
+			<div class="flex flex-col items-center justify-center w-full h-full p-10">
+				<Icon icon="icomoon-free:spinner9" class="mb-4 text-5xl text-blue-900 animate-spin" />
+				<p>Authenticating...</p>
+			</div>
 		{:else if !$meStore.isLoggedIn}
 			<div class="flex items-center justify-center flex-grow w-full h-full background-image">
 				<p

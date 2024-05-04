@@ -15,7 +15,7 @@ export async function registerWithWebAuthn(namedPasskey: string) {
         const response = await provider.relay.pollRequestUntilTerminalState(txHash);
         meStore.set({ pkpPubKey: response.pkpPublicKey, pkpTokenId: response.pkpTokenId });
 
-        log(`Public Key: ${response.pkpPublicKey}`);
+        log(`Public Key: ${response.pkpPublicKey}, Token id: ${response.pkpTokenId}`);
 
         goto('/');
     } catch (error) {
