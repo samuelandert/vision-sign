@@ -24,45 +24,45 @@ export async function initPKPWallet() {
     if (!litNodeClient) {
         throw new Error("LitNodeClient is not initialized");
     }
-    const nonce = litNodeClient.getLatestBlockhash();
+    // const nonce = litNodeClient.getLatestBlockhash();
 
-    let authNeededCallback = async (params) => {
-        console.log("authNeededCallback params:", params);
-        try {
-            const response = await litNodeClient.signSessionKey({
-                authMethods: [authMethod],
-                expiration: params.expiration,
-                nonce,
-                chainId: 100
-            });
-            console.log('Session key signed successfully:', response.authSig);
-            return response.authSig;
-        } catch (error) {
-            console.error('Error in authNeededCallback:', error);
-            throw error;
-        }
-    };
+    // let authNeededCallback = async (params) => {
+    //     console.log("authNeededCallback params:", params);
+    //     try {
+    //         const response = await litNodeClient.signSessionKey({
+    //             authMethods: [authMethod],
+    //             expiration: params.expiration,
+    //             nonce,
+    //             chainId: 100
+    //         });
+    //         console.log('Session key signed successfully:', response.authSig);
+    //         return response.authSig;
+    //     } catch (error) {
+    //         console.error('Error in authNeededCallback:', error);
+    //         throw error;
+    //     }
+    // };
 
-    const pkpWallet = new PKPEthersWallet({
-        authContext: {
-            authMethods: [authMethod],
-            client: litNodeClient,
-            getSessionSigsProps: {
-                chain: 'xdai',
-                expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
-                resourceAbilityRequests: resourceAbilities,
-                authNeededCallback,
-            },
-        },
-        pkpPubKey: me.pkpPubKey,
-    });
+    // const pkpWallet = new PKPEthersWallet({
+    //     authContext: {
+    //         authMethods: [authMethod],
+    //         client: litNodeClient,
+    //         getSessionSigsProps: {
+    //             chain: 'xdai',
+    //             expiration: new Date(Date.now() + 60_000 * 60).toISOString(),
+    //             resourceAbilityRequests: resourceAbilities,
+    //             authNeededCallback,
+    //         },
+    //     },
+    //     pkpPubKey: me.pkpPubKey,
+    // });
 
-    try {
-        await pkpWallet.init();
-        log("PKP Wallet initialized successfully.");
-        pkpWalletStore.set(pkpWallet);
-    } catch (error) {
-        log(`Failed to initialize PKP Wallet: ${error.message}`);
-        throw error;
-    }
+    // try {
+    //     await pkpWallet.init();
+    //     log("PKP Wallet initialized successfully.");
+    //     pkpWalletStore.set(pkpWallet);
+    // } catch (error) {
+    //     log(`Failed to initialize PKP Wallet: ${error.message}`);
+    //     throw error;
+    // }
 }
