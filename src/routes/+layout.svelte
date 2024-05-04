@@ -7,7 +7,6 @@
 	import { meStore } from '$lib/stores';
 	import { handleLogout, refreshPage, sendCustomXDai, donateXDai, handleLogin } from '$lib/utility';
 	import Icon from '@iconify/svelte';
-	import { getJWT } from '$lib/jwt';
 
 	let showLogViewer = writable(false);
 
@@ -18,15 +17,6 @@
 	onMount(async () => {
 		await initializeLitClients();
 	});
-
-	async function fetchJWT() {
-		try {
-			const jwt = await getJWT();
-			console.log('JWT fetched:', jwt);
-		} catch (error) {
-			console.error('Error fetching JWT:', error);
-		}
-	}
 </script>
 
 <div class="w-screen h-screen pb-20 bg-slate-50">
@@ -53,9 +43,6 @@
 					on:click={donateXDai}
 				>
 					Donate 0.01$
-				</button>
-				<button class="text-white rounded-full bg-blue-950" on:click={fetchJWT}>
-					<Icon icon="solar:key-outline" class="w-10 h-10" />
 				</button>
 			{:else}
 				<button class="px-4 py-2 bg-yellow-400 rounded-full text-blue-950" on:click={handleLogin}>

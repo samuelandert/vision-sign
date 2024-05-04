@@ -12,7 +12,7 @@ interface MeObject {
 }
 
 export const pkpWalletStore = writable<PKPEthersWallet | null>(null);
-const meStoreInitial = writable<MeObject>({ pkpPubKey: '', ethAddress: '' });
+const meStoreInitial = writable<MeObject>({ isLoggedIn: false });
 export const meStore = persist(meStoreInitial, createCookieStorage(), "me");
 export const litNodeClientStore = writable<LitNodeClient | null>(null);
 export const litProviderStore = writable<any | null>(null);

@@ -5,21 +5,21 @@ import {
     ensureLitClientsAreInitialized,
     log,
     authMethodSession,
-    litNodeClientStore
 } from './stores';
 import { initPKPWallet } from './initPKPWallet';
 
+
 export async function authenticate() {
     await ensureLitClientsAreInitialized();
-
     let provider = get(litProviderStore);
 
     if (!provider) {
         throw new Error('Provider is not initialized.');
     }
+    let me = get(meStore)
 
     let authMethod = get(authMethodSession);
-    if (!authMethod) {
+    if (!me.isLoggedIn) {
         log('No authMethod in session, authenticating...');
         authMethod = await provider.authenticate();
         if (authMethod) {
@@ -40,12 +40,14 @@ export async function authenticate() {
 
         const pkpPublicKey = pkps[0].publicKey;
         const ethAddress = pkps[0].ethAddress;
-        meStore.set({ pkpPubKey: pkpPublicKey, ethAddress: ethAddress, isLoggedIn: true }); // Set isLoggedIn to true
+        meStore.update(current => {
+            return { ...current, pkpPubKey: pkpPublicKey, ethAddress: ethAddress, isLoggedIn: true };
+        });
         log('User store updated with new PKP, Ethereum address, and login status.');
 
-        log('Initializing PKP Wallet...');
+        // log('Initializing PKP Wallet...');
         // await initPKPWallet();
-        log('PKP Wallet initialization complete.');
+        // log('PKP Wallet initialization complete.');
     } else {
         // await initPKPWallet();
     }
